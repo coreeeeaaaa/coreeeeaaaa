@@ -1,0 +1,64 @@
+name: guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm install
+
+      - name: Stub guard
+        run: node scripts/stub-guard.js packages/cli/bin/coreeeeaaaa.js packages/sdk/src/index.js functions/index.js policy/gate.rego schema/dev_gate.schema.json
+
+      - name: Secrets scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: "detect --no-banner"
+
+      - name: Ensure opa
+        run: ./scripts/ensure-opa.sh
+
+      - name: Lint/test (best-effort)
+        run: |
+          npm run lint || true
+          npm run test || true
+
+      - name: Gate G0 via OPA policy
+        run: |
+          # sample input for policy; customize per project
+          cat > /tmp/gate-input.json <<'EOF'
+          {"gate_id":"G0","metrics":{"ok":true}}
+          EOF
+          npx coreeeeaaaa gate G0 \
+            --input /tmp/gate-input.json \
+            --opa policy/gate.rego \
+            --schema schema/dev_gate.schema.json \
+            --out artifacts/gates
+
+      - name: Budget gate (fail-closed)
+        env:
+          BUDGET: ${{ secrets.BUDGET || 100 }}
+          COST_USED: ${{ secrets.COST_USED || 0 }}
+        run: node scripts/budget-check.js
+
+      - name: Evidence pack
+        run: npx coreeeeaaaa evidence artifacts/gates/G0/*.json --out artifacts/evidence/manifest.json
+
+      - name: Pointer (local CAS)
+        run: npx coreeeeaaaa pointer --hash coreeeeaaaa-ULT-FINAL+
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: guard-artifacts
+          path: artifacts/

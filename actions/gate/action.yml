@@ -1,0 +1,18 @@
+name: coreeeeaaaa-gate
+description: "Run a coreeeeaaaa gate using the CLI"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install
+      shell: bash
+      run: npm install
+    - name: Run gate
+      shell: bash
+      run: npx coreeeeaaaa gate "$GATE_ID" --input "${INPUT_JSON:-}" --out "${OUT_DIR:-artifacts/gates}"
+      env:
+        GATE_ID: ${{ env.GATE_ID }}
+        INPUT_JSON: ${{ env.INPUT_JSON }}
+        OUT_DIR: ${{ env.OUT_DIR }}

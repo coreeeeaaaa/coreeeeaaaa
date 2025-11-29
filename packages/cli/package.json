@@ -1,0 +1,16 @@
+{
+  "name": "@coreeeeaaaa/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "coreeeeaaaa": "bin/coreeeeaaaa.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@coreeeeaaaa/sdk": "0.1.0",
+    "commander": "^11.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
