@@ -1,5 +1,7 @@
 import path from 'path';
 import { mkdir, readFile, writeFile, appendFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import { spawn } from 'child_process';
 import Ajv from 'ajv';
 import { 
   CoreConfig, 
@@ -17,7 +19,6 @@ import {
   isoNow, 
   anonymizeContent 
 } from './utils.js';
-import { appendUemLog } from './uem-adapter.js';
 
 export * from './types.js';
 export * from './utils.js';
@@ -225,28 +226,66 @@ export class CoreSDK {
   }
 
   /**
-   * Internal logging helper. Writes to JSONL and UEM.
+   * Internal logging helper. Sends log to Rust engine (CLI wiring).
    */
   private async log(entry: LogEntry): Promise<void> {
-      const logsDir = path.join(this.artifactsDir, 'logs');
-      await mkdir(logsDir, { recursive: true });
-      
       const tsIso = entry.ts || isoNow();
       const tsCompact = entry.ts_compact || compactTs();
-      const dayCompact = tsCompact.slice(0, 6); // YYMMDD
-      
+
       const fullEntry = {
           ts: tsIso,
           ts_compact: tsCompact,
           ...entry
       };
 
-      await appendFile(
-          path.join(logsDir, `${dayCompact}.log`), 
-          JSON.stringify(fullEntry) + '\n'
-      );
+      try {
+          await this.sendToRustEngine(fullEntry);
+      } catch (err: any) {
+          // Fallback for environments without cargo/binary; keep non-fatal
+          console.warn('mocking rust engine call (logger fallback):', err?.message || err);
+      }
+  }
 
-      // Also fire to UEM
-      appendUemLog(fullEntry);
+  /**
+   * Push log entry to Rust UEM engine via binary or cargo run.
+   */
+  private async sendToRustEngine(record: any): Promise<void> {
+      const engineBin = path.join(this.rootDir, 'packages', 'engine-rs', 'target', 'release', 'core-uem-engine');
+      const manifestPath = path.join(this.rootDir, 'packages', 'engine-rs', 'Cargo.toml');
+      const payload = JSON.stringify(record);
+
+      const useBinary = existsSync(engineBin);
+      const cmd = useBinary ? engineBin : 'cargo';
+      const args = useBinary
+          ? ['append']
+          : ['run', '--manifest-path', manifestPath, '--', 'append'];
+
+      return new Promise((resolve) => {
+          const child = spawn(cmd, args, {
+              cwd: this.rootDir,
+              stdio: ['pipe', 'pipe', 'pipe']
+          });
+          let stderr = '';
+
+          child.on('error', (err) => {
+              console.warn('mocking rust engine call (spawn error):', err?.message || err);
+              resolve();
+          });
+
+          child.stderr.on('data', (d) => {
+              stderr += d.toString();
+          });
+
+          child.on('close', (code) => {
+              if (code !== 0) {
+                  const msg = stderr.trim() || `exit code ${code}`;
+                  console.warn('mocking rust engine call (non-zero exit):', msg);
+              }
+              resolve();
+          });
+
+          child.stdin.write(payload);
+          child.stdin.end();
+      });
   }
 }
