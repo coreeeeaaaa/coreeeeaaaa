@@ -55,6 +55,10 @@ Use `actions/gate` inside workflows:
     OUT_DIR: artifacts/gates
 ```
 
+## Auto PR / auto merge
+- On push to `automation`, `.github/workflows/create-pr.yml` opens a PR to `main` if none exists.
+- After `guard` workflow succeeds, `.github/workflows/auto-merge.yml` auto-merges that PR (squash).
+
 ## Notes
 - `coreeeeaaaa` automation is separate from the `haaroooo` music codebase.
 - All access to Firestore dev logs is locked behind the `dev_ai` token in `firestore.rules`.
