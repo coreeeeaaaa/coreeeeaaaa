@@ -1,6 +1,6 @@
 # coreeeeaaaa
 
-Automation toolkit and governance canon, split from the `haaroooo` music app. This repo holds the SSOT for gates, logging, and CLI/SDK tooling.
+Universal development automation framework. This repo holds the SSOT for gates, logging, and CLI/SDK tooling.
 
 ## Layout
 - `docs/` — ADAC / canon / process notes and logging protocol.
@@ -46,7 +46,7 @@ npx coreeeeaaaa pointer --hash coreeeeaaaa-ULT-FINAL+
 ```bash
 cd functions
 npm install
-firebase deploy --only functions --project haaroooo-85525
+firebase deploy --only functions --project <your-project-id>
 ```
 
 ## GitHub Action (composite)
@@ -64,5 +64,5 @@ Use `actions/gate` inside workflows:
 - After `guard` workflow succeeds, `.github/workflows/auto-merge.yml` auto-merges that PR (squash).
 
 ## Notes
-- `coreeeeaaaa` automation is separate from the `haaroooo` music codebase.
+- Project-agnostic; configure your own Firebase project ID and dev_ai token.
 - All access to Firestore dev logs is locked behind the `dev_ai` token in `firestore.rules`.
