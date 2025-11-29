@@ -1,7 +1,15 @@
-/**
- * Coreeeeaaaa common logger stub for Firebase wiring.
- * Replace TODOs with actual Firebase client init and addDoc/push calls.
- */
+const admin = require('firebase-admin')
+let inited = false
+let db
+
+function ensureInit() {
+  if (inited) return
+  try {
+    admin.initializeApp()
+  } catch (_) {}
+  db = admin.firestore()
+  inited = true
+}
 
 /** @typedef {"info"|"warn"|"error"} CoreeeeaaaaLogLevel */
 /** @typedef {"web"|"api"|"dev-server"|"worker"} CoreeeeaaaaLogSource */
@@ -14,15 +22,21 @@
  * @property {any} [context]
  */
 
-/**
- * Send a log event to the shared sink (intended: Firebase collection "coreeeeaaaa_logs").
- * TODO: wire Firebase client and perform addDoc/push.
- * @param {CoreeeeaaaaLogEvent} event
- */
 async function logEvent(event) {
-  // TODO_CONFIG: initialize Firebase app/client here
-  // TODO: await addDoc(collection(db, "coreeeeaaaa_logs"), event)
-  return
+  ensureInit()
+  const doc = {
+    level: event.level,
+    source: event.source,
+    message: event.message,
+    context: event.context || null,
+    ts: admin.firestore.FieldValue.serverTimestamp(),
+    ts_ms: Date.now()
+  }
+  try {
+    await db.collection('coreeeeaaaa_logs').add(doc)
+  } catch (err) {
+    console.warn('logEvent noop (firestore write failed):', err.message)
+  }
 }
 
 module.exports = { logEvent }
