@@ -1,5 +1,5 @@
 use crate::quantum::{UemQuantum, RECORD_SIZE};
-use sha2::{Sha256, Digest};
+use crate::hash_bytes;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
@@ -46,6 +46,10 @@ impl Ledger {
         ensure_core(&self.path)?;
         if let Some(last) = self.records.last() {
             q.prev_hash = last.hash();
+            let mut snap_input = Vec::new();
+            snap_input.extend_from_slice(&last.state_snapshot);
+            snap_input.extend_from_slice(&q.payload_hash);
+            q.state_snapshot = hash_bytes(&snap_input);
         }
         let bytes = q.to_bytes();
         let mut f = OpenOptions::new().append(true).open(&self.path)?;
@@ -102,10 +106,5 @@ impl Ledger {
 }
 
 fn hash_bytes(data: &[u8]) -> [u8;32] {
-    let mut hasher = Sha256::new();
-    hasher.update(data);
-    let out = hasher.finalize();
-    let mut arr=[0u8;32];
-    arr.copy_from_slice(&out);
-    arr
+    crate::hash_bytes(data)
 }

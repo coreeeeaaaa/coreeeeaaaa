@@ -17,7 +17,6 @@ use crate::uem_tree::{QueryFilter, UemTree};
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use once_cell::sync::Lazy;
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -48,16 +47,15 @@ impl From<EngineError> for Error {
 pub fn genesis_quantum() -> UemQuantum {
     let mut q = UemQuantum::default();
     q.payload_hash = hash_bytes(b"GENESIS");
+    q.state_snapshot = q.payload_hash;
     q
 }
 
 pub fn hash_bytes(data: &[u8]) -> [u8; 32] {
-    let mut h = Sha256::new();
+    let mut h = blake3::Hasher::new();
     h.update(data);
     let out = h.finalize();
-    let mut arr = [0u8; 32];
-    arr.copy_from_slice(&out);
-    arr
+    *out.as_bytes()
 }
 
 fn to_buffer(q: &UemQuantum) -> Buffer {

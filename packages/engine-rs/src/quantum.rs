@@ -1,5 +1,5 @@
 use crate::{coord::Coord9, jiwol_id::JiwolId, complex::Complex32};
-use sha2::{Digest, Sha256};
+use blake3;
 
 pub const SEM_LEN: usize = 768;
 pub const RECORD_SIZE: usize = 3255;
@@ -105,11 +105,9 @@ impl UemQuantum {
     }
 
     pub fn hash(&self) -> [u8; 32] {
-        let mut hasher = Sha256::new();
-        hasher.update(self.to_bytes());
-        let digest = hasher.finalize();
-        let mut out = [0u8; 32];
-        out.copy_from_slice(&digest);
-        out
+        let mut h = blake3::Hasher::new();
+        h.update(&self.to_bytes());
+        let digest = h.finalize();
+        *digest.as_bytes()
     }
 }

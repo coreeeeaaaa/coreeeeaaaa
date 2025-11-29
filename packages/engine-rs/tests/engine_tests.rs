@@ -1,9 +1,9 @@
 use coreeeeaaaa_uem_engine::*;
-use crate::quantum::UemQuantum;
-use crate::jiwol_id::encode_coord;
-use crate::coord::Coord9;
-use crate::ledger::Ledger;
-use crate::ahs::validate_evolution;
+use coreeeeaaaa_uem_engine::quantum::UemQuantum;
+use coreeeeaaaa_uem_engine::jiwol_id::encode_coord;
+use coreeeeaaaa_uem_engine::coord::Coord9;
+use coreeeeaaaa_uem_engine::ledger::Ledger;
+use coreeeeaaaa_uem_engine::ahs::validate_evolution;
 use std::path::PathBuf;
 use tempfile::tempdir;
 
@@ -13,6 +13,7 @@ fn sample_quantum(idx: u64) -> UemQuantum {
     q.coord = coord;
     q.id = encode_coord(&coord);
     q.payload_hash = hash_bytes(format!("payload-{idx}").as_bytes());
+    q.state_snapshot = q.payload_hash;
     q
 }
 
