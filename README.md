@@ -35,6 +35,10 @@ npx coreeeeaaaa pointer --hash coreeeeaaaa-ULT-FINAL+
 - Tail: `npx coreeeeaaaa log --tail --lines 20`
 - Stored as JSONL in `artifacts/logs/YYYY-MM-DD.log`. See `docs/LOGGING.md`.
 
+## Supply chain
+- Install syft/cosign via `./scripts/install-syft-cosign.sh` (workflows run it automatically)
+- SBOM: `./scripts/sbom.sh .` (sign with `COSIGN_KEY` to emit `.sig`)
+
 ## CAS pointer writes
 - `npx coreeeeaaaa pointer --hash <canon> --if-match <etag>` enforces optimistic CAS.
 

@@ -6,3 +6,4 @@
 - Pointer write: `npx coreeeeaaaa pointer --hash <canon>`
 - Budget gate: `BUDGET` env set and `node scripts/budget-check.js` passes (fail-closed if missing)
 - OPA gate: `coreeeeaaaa gate ... --opa policy/gate.rego --schema schema/dev_gate.schema.json`
+- SBOM: `./scripts/sbom.sh .` (optionally sign with COSIGN_KEY)

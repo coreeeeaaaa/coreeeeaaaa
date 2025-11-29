@@ -15,6 +15,10 @@ jobs:
           node-version: '20'
       - name: Install
         run: npm install
+      - name: Supply chain tools (syft/cosign)
+        run: ./scripts/install-syft-cosign.sh || true
+      - name: SBOM
+        run: ./scripts/sbom.sh .
       - name: Budget gate (fail-closed)
         env:
           BUDGET: ${{ secrets.BUDGET || 100 }}

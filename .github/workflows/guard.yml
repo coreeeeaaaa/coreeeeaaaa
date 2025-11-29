@@ -28,10 +28,16 @@ jobs:
       - name: Ensure opa
         run: ./scripts/ensure-opa.sh
 
+      - name: Supply chain tools (syft/cosign)
+        run: ./scripts/install-syft-cosign.sh || true
+
       - name: Lint/test (best-effort)
         run: |
           npm run lint || true
           npm run test || true
+
+      - name: SBOM
+        run: ./scripts/sbom.sh .
 
       - name: Gate G0 via OPA policy
         run: |
