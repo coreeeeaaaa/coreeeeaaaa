@@ -193,3 +193,5 @@ export async function tailLogs({ rootDir = defaultDirs.logs, lines = 20 } = {}) 
     }
   })
 }
+
+export { openUem, appendQuantumRecord, queryUem, inspectUem } from './uem.js'

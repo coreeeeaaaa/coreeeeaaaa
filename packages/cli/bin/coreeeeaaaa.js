@@ -16,6 +16,7 @@ import {
   appendLog,
   tailLogs
 } from '@coreeeeaaaa/sdk'
+import { queryUem, inspectUem } from '@coreeeeaaaa/sdk/uem'
 
 const execFileAsync = promisify(execFile)
 
@@ -172,6 +173,44 @@ program
       console.log(JSON.stringify(res, null, 2))
     } catch (err) {
       console.error(`autonomous step failed: ${err.message}`)
+      process.exitCode = 1
+    }
+  })
+
+const uem = program.command('uem').description('UEM ledger inspection')
+
+uem
+  .command('inspect')
+  .option('--file <path>', 'ledger path', '.core/core.uem')
+  .option('--limit <n>', 'entries to show', '10')
+  .action((opts) => {
+    try {
+      const out = inspectUem({ filePath: opts.file, limit: parseInt(opts.limit, 10) || 10 })
+      out.forEach((row) => console.log(JSON.stringify(row)))
+    } catch (err) {
+      console.error(`uem inspect failed: ${err.message}`)
+      process.exitCode = 1
+    }
+  })
+
+uem
+  .command('query')
+  .option('--file <path>', 'ledger path', '.core/core.uem')
+  .option('--project <id>', 'project id')
+  .option('--step <k>', 'step id')
+  .option('--tmin <t>', 'time min')
+  .option('--tmax <t>', 'time max')
+  .action((opts) => {
+    try {
+      const filter = {}
+      if (opts.project !== undefined) filter.j = Number(opts.project)
+      if (opts.step !== undefined) filter.k = Number(opts.step)
+      if (opts.tmin !== undefined) filter.t_min = Number(opts.tmin)
+      if (opts.tmax !== undefined) filter.t_max = Number(opts.tmax)
+      const res = queryUem(filter, opts.file)
+      res.forEach((row) => console.log(JSON.stringify(row)))
+    } catch (err) {
+      console.error(`uem query failed: ${err.message}`)
       process.exitCode = 1
     }
   })

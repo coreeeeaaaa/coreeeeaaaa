@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./autonomous": "./autonomous/index.js"
+    "./autonomous": "./autonomous/index.js",
+    "./uem": "./src/uem.js"
   },
   "license": "MIT",
   "engines": {
