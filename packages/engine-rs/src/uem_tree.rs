@@ -1,5 +1,4 @@
 use crate::quantum::UemQuantum;
-use crate::coord::Coord9;
 
 use std::collections::{HashMap, HashSet};
 
@@ -42,37 +41,51 @@ impl UemTree {
     }
 
     pub fn query(&self, filter: &QueryFilter) -> Vec<UemQuantum> {
-        let mut candidate_indices: Vec<usize> = (0..self.records.len()).collect();
+        let mut candidates: Option<HashSet<usize>> = None;
+
         if let Some(j) = filter.j {
             if let Some(idx) = self.by_project.get(&j) {
-                candidate_indices = idx.clone();
+                candidates = Some(idx.iter().copied().collect());
             } else {
-                candidate_indices.clear();
+                return Vec::new();
             }
         }
+
         if let Some(k) = filter.k {
-            let mut filtered = Vec::new();
-            if let Some(idx) = self.by_step.get(&k) {
-                let set: std::collections::HashSet<_> = candidate_indices.iter().copied().collect();
-                for i in idx {
-                    if set.contains(i) {
-                        filtered.push(*i);
-                    }
+            let step_set: HashSet<usize> = self
+                .by_step
+                .get(&k)
+                .map(|v| v.iter().copied().collect())
+                .unwrap_or_default();
+            candidates = match candidates {
+                Some(existing) => Some(existing.intersection(&step_set).copied().collect()),
+                None => Some(step_set),
+            };
+        }
+
+        if filter.t_min.is_some() || filter.t_max.is_some() {
+            let t_min = filter.t_min.unwrap_or(0);
+            let t_max = filter.t_max.unwrap_or(u64::MAX);
+            let time_set: HashSet<usize> = self
+                .by_time
+                .iter()
+                .filter_map(|(t, idx)| if *t >= t_min && *t <= t_max { Some(*idx) } else { None })
+                .collect();
+            candidates = match candidates {
+                Some(existing) => Some(existing.intersection(&time_set).copied().collect()),
+                None => Some(time_set),
+            };
+        }
+
+        let final_set: HashSet<usize> = candidates.unwrap_or_else(|| (0..self.records.len()).collect());
+        let mut out = Vec::with_capacity(final_set.len());
+        for (_, idx) in self.by_time.iter() {
+            if final_set.contains(idx) {
+                if let Some(q) = self.records.get(*idx) {
+                    out.push(q.clone());
                 }
-                candidate_indices = filtered;
-            } else {
-                candidate_indices.clear();
             }
         }
-        if let Some(tmin) = filter.t_min {
-            candidate_indices.retain(|i| self.records.get(*i).map(|q| q.coord.t >= tmin).unwrap_or(false));
-        }
-        if let Some(tmax) = filter.t_max {
-            candidate_indices.retain(|i| self.records.get(*i).map(|q| q.coord.t <= tmax).unwrap_or(false));
-        }
-        candidate_indices
-            .iter()
-            .filter_map(|i| self.records.get(*i).cloned())
-            .collect()
+        out
     }
 }

@@ -1,12 +1,19 @@
+use crate::ahs::validate_evolution;
 use crate::quantum::{UemQuantum, RECORD_SIZE};
-use crate::hash_bytes;
 use std::fs::{File, OpenOptions};
-use std::io::{Read, Seek, SeekFrom, Write};
+use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
 pub struct Ledger {
     pub path: PathBuf,
     pub records: Vec<UemQuantum>,
+}
+
+fn next_state_snapshot(prev_state: &[u8; 32], payload_hash: &[u8; 32]) -> [u8; 32] {
+    let mut snap_input = Vec::with_capacity(64);
+    snap_input.extend_from_slice(prev_state);
+    snap_input.extend_from_slice(payload_hash);
+    crate::hash_bytes(&snap_input)
 }
 
 fn ensure_core(path: &Path) -> std::io::Result<()> {
@@ -31,27 +38,21 @@ impl Ledger {
             f.write_all(&bytes)?;
             records.push(genesis);
         } else {
+            if buf.len() % RECORD_SIZE != 0 {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "ledger corrupted: partial record",
+                ));
+            }
             let mut off = 0usize;
             while off + RECORD_SIZE <= buf.len() {
-                if let Some(q) = UemQuantum::from_bytes(&buf[off..off+RECORD_SIZE]) {
+                if let Some(q) = UemQuantum::from_bytes(&buf[off..off + RECORD_SIZE]) {
                     records.push(q);
                 }
                 off += RECORD_SIZE;
             }
         }
-        // Validate chain on load
-        let mut last_hash: Option<[u8;32]> = None;
-        for (idx, q) in records.iter().enumerate() {
-            if idx == 0 && q.prev_hash != [0u8;32] {
-                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "genesis prev_hash must be zero"));
-            }
-            if let Some(expected) = last_hash {
-                if q.prev_hash != expected {
-                    return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "hash chain broken"));
-                }
-            }
-            last_hash = Some(q.hash());
-        }
+        validate_records(&records)?;
         Ok(Self { path, records })
     }
 
@@ -59,10 +60,16 @@ impl Ledger {
         ensure_core(&self.path)?;
         if let Some(last) = self.records.last() {
             q.prev_hash = last.hash();
-            let mut snap_input = Vec::new();
-            snap_input.extend_from_slice(&last.state_snapshot);
-            snap_input.extend_from_slice(&q.payload_hash);
-            q.state_snapshot = hash_bytes(&snap_input);
+            q.state_snapshot = next_state_snapshot(&last.state_snapshot, &q.payload_hash);
+            if !validate_evolution(last, &q) {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "AHS violation: evolution distance too large",
+                ));
+            }
+        } else {
+            q.prev_hash = [0u8; 32];
+            q.state_snapshot = q.payload_hash;
         }
         let bytes = q.to_bytes();
         let mut f = OpenOptions::new().append(true).open(&self.path)?;
@@ -75,13 +82,22 @@ impl Ledger {
         ensure_core(&self.path)?;
         let mut f = OpenOptions::new().write(true).truncate(true).open(&self.path)?;
         self.records.clear();
-        let mut prev_hash = None;
+        let mut prev_hash: Option<[u8; 32]> = None;
+        let mut prev_state: Option<[u8; 32]> = None;
         for mut q in records.into_iter() {
             if let Some(h) = prev_hash {
                 q.prev_hash = h;
+            } else {
+                q.prev_hash = [0u8; 32];
+            }
+            if let Some(state) = prev_state {
+                q.state_snapshot = next_state_snapshot(&state, &q.payload_hash);
+            } else {
+                q.state_snapshot = q.payload_hash;
             }
             let bytes = q.to_bytes();
-            prev_hash = Some(hash_bytes(&bytes));
+            prev_hash = Some(crate::hash_bytes(&bytes));
+            prev_state = Some(q.state_snapshot);
             f.write_all(&bytes)?;
             self.records.push(q);
         }
@@ -90,16 +106,7 @@ impl Ledger {
     }
 
     pub fn validate_chain(&self) -> bool {
-        let mut prev: Option<[u8;32]> = None;
-        for q in self.records.iter() {
-            if let Some(p) = prev {
-                if q.prev_hash != p {
-                    return false;
-                }
-            }
-            prev = Some(q.hash());
-        }
-        true
+        validate_records(&self.records).is_ok()
     }
 
     pub fn tamper_at(&mut self, index: usize, delta: u8) -> std::io::Result<()> {
@@ -118,6 +125,60 @@ impl Ledger {
     }
 }
 
-fn hash_bytes(data: &[u8]) -> [u8;32] {
-    crate::hash_bytes(data)
+fn validate_records(records: &[UemQuantum]) -> std::io::Result<()> {
+    if records.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "ledger empty or unreadable",
+        ));
+    }
+    let mut last_hash: Option<[u8; 32]> = None;
+    let mut last_state: Option<[u8; 32]> = None;
+    let mut last_q: Option<&UemQuantum> = None;
+    for (idx, q) in records.iter().enumerate() {
+        if idx == 0 {
+            if q.prev_hash != [0u8; 32] {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "genesis prev_hash must be zero",
+                ));
+            }
+            if q.state_snapshot != q.payload_hash {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "genesis snapshot must match payload hash",
+                ));
+            }
+        } else {
+            if let Some(expected) = last_hash {
+                if q.prev_hash != expected {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "hash chain broken",
+                    ));
+                }
+            }
+            if let Some(state) = last_state {
+                let expected_state = next_state_snapshot(&state, &q.payload_hash);
+                if q.state_snapshot != expected_state {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "state snapshot mismatch",
+                    ));
+                }
+            }
+            if let Some(prev) = last_q {
+                if !validate_evolution(prev, q) {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "AHS violation detected",
+                    ));
+                }
+            }
+        }
+        last_hash = Some(q.hash());
+        last_state = Some(q.state_snapshot);
+        last_q = Some(q);
+    }
+    Ok(())
 }

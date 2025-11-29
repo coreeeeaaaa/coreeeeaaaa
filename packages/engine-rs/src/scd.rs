@@ -19,8 +19,7 @@ pub fn scd_compact(records: &[UemQuantum]) -> ScdResult {
     let summary_count = records.len().saturating_sub(TAIL_KEEP + 1);
     let mut summary = UemQuantum::default();
     summary.coord = records.last().map(|q| q.coord).unwrap_or_default();
-    summary.thickness.re = 0.0;
-    summary.thickness.im = summary_count as f32;
+    summary.thickness = records.last().map(|q| q.thickness).unwrap_or_default();
     summary.payload_hash = crate::hash_bytes(format!("SCD_SUMMARY_{}", summary_count).as_bytes());
     new_records.push(summary);
     let tail_start = records.len().saturating_sub(TAIL_KEEP);
