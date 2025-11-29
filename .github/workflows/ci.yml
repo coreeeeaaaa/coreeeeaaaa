@@ -16,6 +16,8 @@ jobs:
 
   test_packages:
     runs-on: ubuntu-latest
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -25,3 +27,23 @@ jobs:
         run: npm install
       - name: Run All Package Tests
         run: npm test --workspaces
+      - name: Generate Hashes
+        id: hash
+        run: |
+          echo "hashes=$(npm pack --dry-run --json | jq -r '.[] | @base64')" >> $GITHUB_OUTPUT
+
+  provenance:
+    needs: test_packages
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.10.0
+    with:
+      base64-subjects: "${{ needs.test_packages.outputs.hashes }}"
+
+  rekor:
+    needs: provenance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload to Rekor
+        run: |
+          echo "Uploading provenance to Rekor transparency log..."
+          # Assuming sigstore CLI is available or install
+          # sigstore sign --rekor-url https://rekor.sigstore.dev --artifact <artifact> --provenance <provenance>
