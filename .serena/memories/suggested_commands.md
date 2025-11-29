@@ -1,0 +1,13 @@
+# Suggested commands
+- Install deps (workspace root): `npm install`
+- Lint all workspaces: `npm run lint` (delegates to workspace scripts if present)
+- Test all workspaces: `npm run test` (uses node:test suites under tests/)
+- Build all workspaces: `npm run build` (no-op unless workspace defines build)
+- CLI gate run: `npx coreeeeaaaa gate G4 --input sample.json --out artifacts/gates`
+- CLI evidence pack: `npx coreeeeaaaa evidence artifacts/gates/G4/*.json --out artifacts/evidence/manifest.json`
+- CLI pointer update: `npx coreeeeaaaa pointer --hash <canon> --if-match <etag>`
+- CLI logs: append `npx coreeeeaaaa log --add --type instruction --actor architect --context G1 --text "spec review"`; tail `npx coreeeeaaaa log --tail --lines 20`
+- Autonomous step: `npx coreeeeaaaa autonomous step` (writes .core/core.uem)
+- Log summary: `node scripts/auto-log-summary.js` (writes artifacts/logs/YYMMDD.summary.json)
+- Firebase deploy (manual, from functions/): `cd functions && npm install && firebase deploy --only functions --project <project-id>`
+- CI locally (approx): `npm install && npm run lint && npm run test && npx coreeeeaaaa --help`

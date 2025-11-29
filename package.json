@@ -18,5 +18,8 @@
     "commander": "^11.1.0",
     "firebase-admin": "^13.6.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
 }

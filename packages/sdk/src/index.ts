@@ -1,0 +1,252 @@
+import path from 'path';
+import { mkdir, readFile, writeFile, appendFile } from 'fs/promises';
+import Ajv from 'ajv';
+import { 
+  CoreConfig, 
+  GateId, 
+  GateInput, 
+  GateResult, 
+  EvidencePayload, 
+  BudgetPayload, 
+  LogEntry 
+} from './types.js';
+import { 
+  hashObject, 
+  hashString, 
+  compactTs, 
+  isoNow, 
+  anonymizeContent 
+} from './utils.js';
+import { appendUemLog } from './uem-adapter.js';
+
+export * from './types.js';
+export * from './utils.js';
+
+export class CoreSDK {
+  private config: CoreConfig;
+  private rootDir: string;
+  private artifactsDir: string;
+
+  constructor(config: CoreConfig = {}) {
+    this.config = config;
+    this.rootDir = config.rootDir || process.cwd();
+    this.artifactsDir = config.artifactsDir || path.join(this.rootDir, 'artifacts');
+  }
+
+  /**
+   * Initializes the environment (ensures directories exist).
+   */
+  async init(): Promise<void> {
+    const dirs = ['gates', 'evidence', 'pointers', 'logs', 'budget', 'lineage'];
+    for (const d of dirs) {
+      await mkdir(path.join(this.artifactsDir, d), { recursive: true });
+    }
+  }
+
+  /**
+   * Runs a gate validation process.
+   * Records the result in artifacts/gates/{gateId}/{timestamp}.json
+   */
+  async runGate(gateId: GateId, input: GateInput, schemaPath?: string): Promise<GateResult> {
+    const evaluatedAt = isoNow();
+    const inputHash = hashObject(input);
+    let ok = true;
+    let errors: string[] = [];
+
+    // Optional Schema Validation
+    if (schemaPath) {
+      try {
+        const AjvClass = (Ajv as any).default || Ajv;
+        const ajv = new AjvClass({ allErrors: true, strict: false });
+        const schemaRaw = await readFile(schemaPath, 'utf8');
+        const schema = JSON.parse(schemaRaw);
+        const validate = ajv.compile(schema);
+        const valid = validate(input);
+        if (!valid) {
+          ok = false;
+          errors = validate.errors?.map((e: any) => `${e.instancePath} ${e.message}`) || ['Unknown schema error'];
+        }
+      } catch (err: any) {
+        ok = false;
+        errors.push(`Schema validation failed: ${err.message}`);
+      }
+    }
+
+    const result: GateResult = {
+      gateId,
+      ok,
+      evaluatedAt,
+      inputHash,
+      errors: errors.length > 0 ? errors : undefined
+    };
+
+    // Persist result
+    const safeStamp = evaluatedAt.replace(/[:]/g, '-');
+    const destDir = path.join(this.artifactsDir, 'gates', gateId);
+    await mkdir(destDir, { recursive: true });
+    await writeFile(
+      path.join(destDir, `${safeStamp}.json`),
+      JSON.stringify(result, null, 2)
+    );
+
+    // Log event
+    await this.log({
+      type: 'gate_run',
+      actor: 'sdk',
+      context: gateId,
+      text: `Gate ${gateId} ${ok ? 'passed' : 'failed'}`,
+      meta: { inputHash, errors: errors.length }
+    });
+
+    return result;
+  }
+
+  /**
+   * Appends evidence to the log and virtually uploads it (simulated).
+   */
+  async appendEvidence(evidence: EvidencePayload): Promise<void> {
+    const destDir = path.join(this.artifactsDir, 'evidence');
+    await mkdir(destDir, { recursive: true });
+
+    let contentHash = evidence.hash;
+    if (!contentHash) {
+        // If content is provided, hash it. If path, read and hash.
+        // For simplicity in this v1, we assume path exists if content is undefined
+        if (evidence.content) {
+            contentHash = typeof evidence.content === 'string' 
+                ? hashString(evidence.content) 
+                : hashString(evidence.content.toString());
+        } else {
+            try {
+                const buf = await readFile(evidence.path);
+                contentHash = hashString(buf.toString());
+            } catch (err) {
+                contentHash = 'MISSING_FILE';
+            }
+        }
+    }
+
+    const manifestEntry = {
+        ...evidence,
+        hash: contentHash,
+        timestamp: isoNow()
+    };
+
+    // In a real world, we would upload to GCS here.
+    // For now, we append to a local manifest.
+    const manifestPath = path.join(destDir, 'manifest.jsonl');
+    await appendFile(manifestPath, JSON.stringify(manifestEntry) + '\n');
+
+    await this.log({
+        type: 'evidence_collected',
+        actor: 'sdk',
+        context: 'evidence',
+        text: `Collected evidence: ${evidence.type} (${path.basename(evidence.path)})`,
+        meta: { hash: contentHash }
+    });
+  }
+
+  /**
+   * Reports budget usage.
+   */
+  async reportBudget(cost: BudgetPayload): Promise<void> {
+    const destDir = path.join(this.artifactsDir, 'budget');
+    await mkdir(destDir, { recursive: true });
+    
+    const filename = `${cost.period}.jsonl`;
+    await appendFile(
+        path.join(destDir, filename), 
+        JSON.stringify({ ...cost, timestamp: isoNow() }) + '\n'
+    );
+  }
+
+  /**
+   * Updates the global pointer with Optimistic Concurrency Control (CAS).
+   */
+  async updatePointerCAS(hash: string, snapshotTs: string, ifMatch?: string): Promise<void> {
+    const pointerDir = path.join(this.artifactsDir, 'pointers');
+    await mkdir(pointerDir, { recursive: true });
+    const pointerFile = path.join(pointerDir, 'current.json');
+    
+    let prevEtag: string | null = null;
+    let supersedes: string | null = null;
+
+    try {
+        const prevRaw = await readFile(pointerFile, 'utf8');
+        const prev = JSON.parse(prevRaw);
+        prevEtag = prev.etag || hashObject(prev);
+        supersedes = prev.current_hash;
+
+        if (ifMatch && prevEtag !== ifMatch) {
+            throw new Error(`CAS failed: ETag mismatch. Expected ${ifMatch}, got ${prevEtag}`);
+        }
+    } catch (err: any) {
+        if (err.code !== 'ENOENT') throw err;
+    }
+
+    const now = isoNow();
+    const record = {
+        current_hash: hash,
+        supersedes: supersedes || null,
+        snapshot_ts: snapshotTs,
+        updated_at: now,
+        etag: hashObject({ hash, supersedes, snapshotTs })
+    };
+
+    await writeFile(pointerFile, JSON.stringify(record, null, 2));
+    
+    await this.log({
+        type: 'pointer_update',
+        actor: 'sdk',
+        context: 'pointer',
+        text: `Pointer updated to ${hash}`,
+        meta: { snapshotTs, supersedes }
+    });
+  }
+
+  /**
+   * Logs a lineage event.
+   */
+  async logLineage(entity: string, meta: Record<string, any>): Promise<void> {
+     const lineageDir = path.join(this.artifactsDir, 'lineage');
+     await mkdir(lineageDir, { recursive: true });
+     
+     // Shard by entity
+     const safeEntity = entity.replace(/[^a-zA-Z0-9_-]/g, '_');
+     const filePath = path.join(lineageDir, `${safeEntity}.jsonl`);
+     
+     const entry = {
+         entity,
+         timestamp: isoNow(),
+         meta
+     };
+     
+     await appendFile(filePath, JSON.stringify(entry) + '\n');
+  }
+
+  /**
+   * Internal logging helper. Writes to JSONL and UEM.
+   */
+  private async log(entry: LogEntry): Promise<void> {
+      const logsDir = path.join(this.artifactsDir, 'logs');
+      await mkdir(logsDir, { recursive: true });
+      
+      const tsIso = entry.ts || isoNow();
+      const tsCompact = entry.ts_compact || compactTs();
+      const dayCompact = tsCompact.slice(0, 6); // YYMMDD
+      
+      const fullEntry = {
+          ts: tsIso,
+          ts_compact: tsCompact,
+          ...entry
+      };
+
+      await appendFile(
+          path.join(logsDir, `${dayCompact}.log`), 
+          JSON.stringify(fullEntry) + '\n'
+      );
+
+      // Also fire to UEM
+      appendUemLog(fullEntry);
+  }
+}

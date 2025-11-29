@@ -1,29 +1,39 @@
 #!/usr/bin/env node
-// Fail-closed budget gate. Reads env BUDGET (number) and optional COST_USED (number, default 0).
-// Exits 1 if budget signal missing or exceeded.
+// Fail-closed budget gate.
+// Usage: node scripts/budget-check.js [--budget=N] [--used=N]
+// Or via ENV: BUDGET=N COST_USED=N
 
-const budgetEnv = process.env.BUDGET
-if (!budgetEnv) {
-  console.error('budget-check: missing BUDGET env (fail-closed)')
-  process.exit(1)
+const args = process.argv.slice(2);
+const getArg = (key) => {
+    const flag = args.find(a => a.startsWith(`--${key}=`));
+    return flag ? flag.split('=')[1] : process.env[key.toUpperCase()];
+};
+
+const budgetStr = getArg('budget');
+if (!budgetStr) {
+  console.error('budget-check: missing budget limit (env BUDGET or --budget)');
+  process.exit(1);
 }
 
-const budget = Number(budgetEnv)
+const budget = Number(budgetStr);
 if (Number.isNaN(budget) || budget <= 0) {
-  console.error('budget-check: invalid BUDGET env (must be > 0)')
-  process.exit(1)
+  console.error('budget-check: invalid budget limit');
+  process.exit(1);
 }
 
-const usedEnv = process.env.COST_USED || '0'
-const used = Number(usedEnv)
+const usedStr = getArg('used') || getArg('cost_used') || '0';
+const used = Number(usedStr);
+
 if (Number.isNaN(used) || used < 0) {
-  console.error('budget-check: invalid COST_USED env')
-  process.exit(1)
+  console.error('budget-check: invalid used amount');
+  process.exit(1);
 }
+
+console.log(`Budget Check: Used ${used} / Limit ${budget}`);
 
 if (used > budget) {
-  console.error(`budget-check: over budget (${used} > ${budget})`)
-  process.exit(1)
+  console.error(`TOTAL FAILURE: Over budget!`);
+  process.exit(1);
 }
 
-console.log(`budget-check: ok (used=${used}, budget=${budget})`)
+console.log('Budget OK.');
