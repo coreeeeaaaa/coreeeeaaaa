@@ -5,7 +5,8 @@ const ALPHA: f32 = 0.8;
 fn dist(prev: &UemQuantum, next: &UemQuantum) -> f32 {
     let re_diff = (next.thickness.re - prev.thickness.re).abs();
     let im_diff = (next.thickness.im - prev.thickness.im).abs();
-    re_diff + im_diff
+    let t_diff = ((next.coord.t as i128 - prev.coord.t as i128).abs() as f32).ln_1p();
+    re_diff + im_diff + t_diff
 }
 
 pub fn validate_evolution(prev: &UemQuantum, next: &UemQuantum) -> bool {

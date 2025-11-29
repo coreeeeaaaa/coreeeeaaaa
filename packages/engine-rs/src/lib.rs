@@ -48,6 +48,7 @@ pub fn genesis_quantum() -> UemQuantum {
     let mut q = UemQuantum::default();
     q.payload_hash = hash_bytes(b"GENESIS");
     q.state_snapshot = q.payload_hash;
+    q.prev_hash = [0u8; 32];
     q
 }
 

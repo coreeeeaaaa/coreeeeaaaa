@@ -39,6 +39,19 @@ impl Ledger {
                 off += RECORD_SIZE;
             }
         }
+        // Validate chain on load
+        let mut last_hash: Option<[u8;32]> = None;
+        for (idx, q) in records.iter().enumerate() {
+            if idx == 0 && q.prev_hash != [0u8;32] {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "genesis prev_hash must be zero"));
+            }
+            if let Some(expected) = last_hash {
+                if q.prev_hash != expected {
+                    return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "hash chain broken"));
+                }
+            }
+            last_hash = Some(q.hash());
+        }
         Ok(Self { path, records })
     }
 

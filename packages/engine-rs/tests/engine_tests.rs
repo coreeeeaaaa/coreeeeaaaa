@@ -4,7 +4,6 @@ use coreeeeaaaa_uem_engine::jiwol_id::encode_coord;
 use coreeeeaaaa_uem_engine::coord::Coord9;
 use coreeeeaaaa_uem_engine::ledger::Ledger;
 use coreeeeaaaa_uem_engine::ahs::validate_evolution;
-use std::path::PathBuf;
 use tempfile::tempdir;
 
 fn sample_quantum(idx: u64) -> UemQuantum {
@@ -27,8 +26,8 @@ fn chain_validates_and_detects_tamper() {
     }
     assert!(ledger.validate_chain());
     ledger.tamper_at(2, 0xFF).unwrap();
-    let ledger2 = Ledger::open(path, genesis_quantum()).unwrap();
-    assert!(!ledger2.validate_chain());
+    let bad = Ledger::open(path, genesis_quantum());
+    assert!(bad.is_err());
 }
 
 #[test]
