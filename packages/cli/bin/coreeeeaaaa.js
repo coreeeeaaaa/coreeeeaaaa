@@ -160,4 +160,20 @@ program
     }
   })
 
+program
+  .command('autonomous')
+  .description('run autonomous engine step')
+  .command('step')
+  .description('run one step')
+  .action(async () => {
+    try {
+      const { runStep } = await import('@coreeeeaaaa/sdk/autonomous')
+      const res = await runStep()
+      console.log(JSON.stringify(res, null, 2))
+    } catch (err) {
+      console.error(`autonomous step failed: ${err.message}`)
+      process.exitCode = 1
+    }
+  })
+
 program.parse()
