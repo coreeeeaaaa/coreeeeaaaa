@@ -8,7 +8,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 let uemEngine = require('../../core/uem/engine.js')
 try {
-  const binding = require('../../core/uem/bindings/node/index.js')
+  const binding = require('../engine-rs/node/index.js')
   if (binding && binding.appendQuantum && binding.iterQuanta) {
     uemEngine = {
       ...uemEngine,
