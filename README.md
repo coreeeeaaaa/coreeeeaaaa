@@ -14,10 +14,11 @@ Universal development automation framework. This repo holds the SSOT for gates, 
 
 ## Quick start
 ```bash
-npm install
-npx coreeeeaaaa gate G4 --input sample.json --out artifacts/gates
-npx coreeeeaaaa evidence artifacts/gates/G4/*.json --out artifacts/evidence/manifest.json
-npx coreeeeaaaa pointer --hash coreeeeaaaa-ULT-FINAL+
+# Install globally
+npm install -g @coreeeeaaaa/cli
+
+# Initialize a new project
+coreeeeaaaa init
 ```
 
 ## Privacy / anonymization
