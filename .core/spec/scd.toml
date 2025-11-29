@@ -1,0 +1,3 @@
+[scd]
+goal = "bounded growth; margin preserved"
+trigger_bytes = 1073741824 # 1GB placeholder

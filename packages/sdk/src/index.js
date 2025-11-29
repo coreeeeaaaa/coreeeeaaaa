@@ -3,6 +3,10 @@ import { createHash } from 'crypto'
 import path from 'path'
 import Ajv from 'ajv'
 import { appendFile } from 'fs/promises'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
+const uemEngine = require('../../core/uem/engine.js')
 
 export const defaultDirs = {
   gates: 'artifacts/gates',
@@ -137,6 +141,14 @@ export async function appendLog(entry, rootDir = defaultDirs.logs) {
   const dayCompact = tsCompact.slice(0, 6) // YYMMDD
   const filePath = path.join(dir, `${dayCompact}.log`)
   await appendFile(filePath, line, 'utf8')
+
+  try {
+    const actor_hash = entry.actor ? createHash('sha256').update(entry.actor).digest().readUInt32LE(0) : 0
+    const q = uemEngine.createLogQuantum({ ...entry, ts: tsIso, ts_compact: tsCompact, actor_hash })
+    uemEngine.appendQuantum(q, uemEngine.CORE_UEM_PATH)
+  } catch (err) {
+    // UEM write is best-effort; keep JSONL path authoritative for now
+  }
   return filePath
 }
 

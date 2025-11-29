@@ -1,0 +1,5 @@
+[mapping]
+# base = 11172 (Hangul syllable space)
+# layout: t(6) | x(4) | j(4) | a(1) | w(1) | k(1) | p(1) | m(1) | c(1) = 20 digits
+digits = [6, 4, 4, 1, 1, 1, 1, 1, 1]
+fields = ["t","x","j","a","w","k","p","m","c"]

@@ -1,0 +1,5 @@
+[ops]
+merge = "non-idempotent associative"
+parallel = "independent composition"
+project = "layer projection"
+tau = "thickness measure"

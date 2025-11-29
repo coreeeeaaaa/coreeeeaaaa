@@ -6,30 +6,41 @@ import crypto from 'node:crypto'
 
 const { readAll, CORE_PATH } = require('../../core/uem/ledger')
 const { decodeQuantum, createQuantum, hashPayload } = require('../../core/uem/quantum')
+const { getPendingTasks, commentOnTask } = require('../../core/sdk/tasks')
+const { loadContext } = require('../../core/sdk/context7')
 
 function nowBigInt() {
   return BigInt(Date.now())
 }
 
-function assessState({ sinceMinutes = 60 } = {}) {
+async function assessState({ sinceMinutes = 60 } = {}) {
   const cutoff = nowBigInt() - BigInt(sinceMinutes * 60 * 1000)
   const records = readAll(CORE_PATH)
   const decoded = records.map(decodeQuantum)
   const recent = decoded.filter((q) => q.coord.t >= cutoff)
   const errors = recent.filter((q) => q.coord.m === 3)
+  let pendingTasks = []
+  try {
+    pendingTasks = await Promise.resolve(getPendingTasks())
+  } catch (err) {
+    pendingTasks = []
+  }
   const candidates = []
   if (errors.length > 0) candidates.push('fix_tests')
   if (recent.length === 0) candidates.push('write_spec')
   if (recent.length > 0) candidates.push('run_ci')
   if (candidates.length === 0) candidates.push('idle')
-  return { recentCount: recent.length, errorCount: errors.length, candidates }
+  return { recentCount: recent.length, errorCount: errors.length, candidates, pendingTasks }
 }
 
 function decide(state) {
-  if (state.errorCount > 0) return 'fix_tests'
-  if (state.candidates.includes('write_spec')) return 'write_spec'
-  if (state.candidates.includes('run_ci')) return 'run_ci'
-  return 'idle'
+  if (state.errorCount > 0) return { action: 'fix_tests' }
+  if (state.pendingTasks && state.pendingTasks.length > 0) {
+    return { action: 'work_on_task', task: state.pendingTasks[0] }
+  }
+  if (state.candidates.includes('write_spec')) return { action: 'write_spec' }
+  if (state.candidates.includes('run_ci')) return { action: 'run_ci' }
+  return { action: 'idle' }
 }
 
 function execCmd(cmd, args=[]) {
@@ -37,12 +48,19 @@ function execCmd(cmd, args=[]) {
   return { ok: res.status === 0, status: res.status, signal: res.signal }
 }
 
-async function execute(action) {
+async function execute(decision) {
+  const action = typeof decision === 'string' ? decision : decision.action
   if (action === 'run_ci') {
     return execCmd('npm', ['test'])
   }
   if (action === 'fix_tests' || action === 'write_spec' || action === 'idle') {
     return { ok: true, status: 0 }
+  }
+  if (action === 'work_on_task') {
+    const task = decision.task || {}
+    const ctx = await loadContext(task)
+    const comment = commentOnTask(task.id, `auto: starting work_on_task; context=${JSON.stringify(ctx).slice(0,200)}`)
+    return { ok: true, status: 0, taskId: task.id, context: ctx, comment }
   }
   return { ok: false, status: -1, reason: 'unknown action' }
 }
@@ -56,19 +74,21 @@ function record({ action, result, attempt = 1 }) {
 }
 
 async function runStep() {
-  const state = assessState({ sinceMinutes: 60 })
-  const action = decide(state)
+  const state = await assessState({ sinceMinutes: 60 })
+  const decision = decide(state)
   let attempt = 1
-  let result = await execute(action)
+  let result = await execute(decision)
   if (!result.ok && attempt === 1) {
     attempt = 2
-    result = await execute(action)
+    result = await execute(decision)
   }
   if (!result.ok) {
-    result = { ...result, note: 'fallback to idle' }
+    const taskId = decision.task ? decision.task.id : undefined
+    if (taskId) commentOnTask(taskId, `auto: escalate after failure ${JSON.stringify(result).slice(0,200)}`)
+    result = { ...result, followup: 'escalate', note: 'escalated after retry' }
   }
-  record({ action, result, attempt })
-  return { state, action, result }
+  record({ action: decision.action || decision, result, attempt })
+  return { state, decision, result }
 }
 
 export { assessState, decide, execute, record, runStep }

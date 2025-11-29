@@ -1,0 +1,10 @@
+[record]
+size_bytes = 3256
+id_len = 20
+semantic_vec_len = 768
+hash = "sha256" # blake3 preferred; sha256 used for compatibility
+
+[ledger]
+path = ".core/core.uem"
+append_only = true
+chain = true
