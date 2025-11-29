@@ -6,7 +6,21 @@ import { appendFile } from 'fs/promises'
 import { createRequire } from 'module'
 
 const require = createRequire(import.meta.url)
-const uemEngine = require('../../core/uem/engine.js')
+let uemEngine = require('../../core/uem/engine.js')
+try {
+  const binding = require('../../core/uem/bindings/node/index.js')
+  if (binding && binding.appendQuantum && binding.iterQuanta) {
+    uemEngine = {
+      ...uemEngine,
+      appendQuantum: binding.appendQuantum,
+      iterQuanta: binding.iterQuanta,
+      ensureCoreFile: binding.genesis,
+      UEM_RECORD_SIZE: binding.recordSize
+    }
+  }
+} catch (err) {
+  // fallback to pure JS engine
+}
 
 export const defaultDirs = {
   gates: 'artifacts/gates',
