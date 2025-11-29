@@ -20,6 +20,13 @@ export function hashObject(value) {
   return createHash('sha256').update(normalized).digest('hex')
 }
 
+export function compactTs(date = new Date()) {
+  // YYMMDDHHMMSS (UTC) for compact logging
+  const pad = (n) => String(n).padStart(2, '0')
+  const yr = String(date.getUTCFullYear()).slice(-2)
+  return `${yr}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}`
+}
+
 export function isoNow() {
   return new Date().toISOString()
 }
@@ -124,10 +131,11 @@ export async function setPointer(newHash, { pointerFile = path.join(defaultDirs.
 export async function appendLog(entry, rootDir = defaultDirs.logs) {
   const dir = rootDir
   await ensureDir(dir)
-  const ts = entry.ts || isoNow()
-  const day = ts.slice(0, 10)
-  const line = JSON.stringify({ ts, ...entry }) + '\n'
-  const filePath = path.join(dir, `${day}.log`)
+  const tsIso = entry.ts || isoNow()
+  const tsCompact = entry.ts_compact || compactTs()
+  const line = JSON.stringify({ ts: tsIso, ts_compact: tsCompact, ...entry }) + '\n'
+  const dayCompact = tsCompact.slice(0, 6) // YYMMDD
+  const filePath = path.join(dir, `${dayCompact}.log`)
   await appendFile(filePath, line, 'utf8')
   return filePath
 }

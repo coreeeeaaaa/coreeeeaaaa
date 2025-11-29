@@ -68,3 +68,6 @@ jobs:
         with:
           name: guard-artifacts
           path: artifacts/
+
+      - name: Summarize logs (compact)
+        run: node scripts/auto-log-summary.js
