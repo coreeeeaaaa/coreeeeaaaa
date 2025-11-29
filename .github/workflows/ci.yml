@@ -27,6 +27,8 @@ jobs:
         run: npm install
       - name: Run All Package Tests
         run: npm test --workspaces
+      - name: Audit Stubs
+        run: npx ts-node scripts/audit-stubs.ts
       - name: Generate Hashes
         id: hash
         run: |
