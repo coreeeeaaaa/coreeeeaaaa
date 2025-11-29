@@ -39,6 +39,15 @@ function appendQuantum(q, filePath) {
   return jsEngine.appendQuantum(q, filePath)
 }
 
+function appendQuantumHandle(handle, q) {
+  if (native?.append_record && handle != null) {
+    const buf = jsEngine.serializeQuantum(q)
+    return native.append_record(handle, buf)
+  }
+  // fallback: direct append to path if provided in q
+  return appendQuantum(q, q?.path)
+}
+
 function iterQuanta(filePath) {
   if (native?.read_all) {
     const buffers = native.read_all(filePath || null)
@@ -70,4 +79,23 @@ function queryRecords(handle, filter) {
   return []
 }
 
-module.exports = { appendQuantum, iterQuanta, genesis, recordSize, native, openLedger, validateChain, queryRecords }
+// Canonical aliases for SDK/CLI usage
+const openUem = openLedger
+const appendQuantumHandleAlias = appendQuantumHandle
+const queryQuanta = queryRecords
+const validateChainHandleAlias = validateChain
+
+module.exports = {
+  appendQuantum,
+  appendQuantumHandle: appendQuantumHandleAlias,
+  iterQuanta,
+  genesis,
+  recordSize,
+  native,
+  openLedger,
+  validateChain,
+  queryRecords,
+  openUem,
+  queryQuanta,
+  validateChainHandle: validateChainHandleAlias
+}

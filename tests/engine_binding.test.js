@@ -17,13 +17,16 @@ test('binding append/query/validate via rust if available, otherwise js fallback
   binding.genesis(ledgerPath)
   const q = jsEngine.createLogQuantum({ actor_hash: 1, text: 'hi' })
   binding.appendQuantum(q, ledgerPath)
-  const records = binding.iterQuanta(ledgerPath)
-  assert.ok(records.length >= 1)
-  const h = binding.openLedger(ledgerPath)
+  const h = binding.openUem(ledgerPath)
   if (h) {
-    const ok = binding.validateChain(h)
+    binding.appendQuantumHandle(h, q)
+    const ok = binding.validateChainHandle(h)
     assert.strictEqual(ok, true)
-    const res = binding.queryRecords(h, { j: 0 })
+    const res = binding.queryQuanta(h, { j: 0 })
     assert.ok(Array.isArray(res))
+    assert.ok(res.length >= 1)
+  } else {
+    const records = binding.iterQuanta(ledgerPath)
+    assert.ok(records.length >= 1)
   }
 })
