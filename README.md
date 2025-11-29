@@ -66,3 +66,6 @@ Use `actions/gate` inside workflows:
 ## Notes
 - Project-agnostic; configure your own Firebase project ID and dev_ai token.
 - All access to Firestore dev logs is locked behind the `dev_ai` token in `firestore.rules`.
+
+## Status
+- SDK/CLI: v0.1.0 (Ready)
