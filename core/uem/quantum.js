@@ -60,7 +60,7 @@ function createQuantum({coord, payload_hash, semantic_vec, prev_hash, state_snap
 }
 
 function hashPayload(data) {
-  return crypto.createHash('blake3').update(data).digest()
+  return crypto.createHash('sha256').update(data).digest()
 }
 
 module.exports = { encodeQuantum, createQuantum, hashPayload, SEM_LEN }

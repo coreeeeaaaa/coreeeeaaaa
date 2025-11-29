@@ -4,22 +4,22 @@ const { encodeQuantum } = require('./quantum')
 
 const CORE_PATH = path.join('.core', 'core.uem')
 
-function ensureCoreFile() {
-  const dir = path.dirname(CORE_PATH)
+function ensureCoreFile(filePath = CORE_PATH) {
+  const dir = path.dirname(filePath)
   fs.mkdirSync(dir, { recursive: true })
-  if (!fs.existsSync(CORE_PATH)) fs.writeFileSync(CORE_PATH, Buffer.alloc(0))
+  if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, Buffer.alloc(0))
 }
 
-function appendQuantum(q) {
-  ensureCoreFile()
+function appendQuantum(q, filePath = CORE_PATH) {
+  ensureCoreFile(filePath)
   const buf = encodeQuantum(q)
-  fs.appendFileSync(CORE_PATH, buf)
+  fs.appendFileSync(filePath, buf)
   return buf.length
 }
 
-function readAll() {
-  ensureCoreFile()
-  const buf = fs.readFileSync(CORE_PATH)
+function readAll(filePath = CORE_PATH) {
+  ensureCoreFile(filePath)
+  const buf = fs.readFileSync(filePath)
   const sz = 3255
   const out = []
   for (let off=0; off+sz<=buf.length; off+=sz) {
@@ -28,4 +28,8 @@ function readAll() {
   return out
 }
 
-module.exports = { appendQuantum, readAll, CORE_PATH }
+async function readAllFromLedger(filePath = CORE_PATH) {
+  return readAll(filePath)
+}
+
+module.exports = { appendQuantum, readAll, readAllFromLedger, CORE_PATH }

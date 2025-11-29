@@ -3,6 +3,7 @@
 const { coord9 } = require('../core/uem/coord')
 const { createQuantum, hashPayload } = require('../core/uem/quantum')
 const { appendQuantum } = require('../core/uem/ledger')
+const { logEvent } = require('../core/logger')
 
 const text = process.argv[2] || 'log-entry'
 const payloadHash = hashPayload(Buffer.from(text))
@@ -14,3 +15,5 @@ const q = createQuantum({
 
 appendQuantum(q)
 console.log('appended quantum for log:', text)
+
+logEvent({ level: 'info', source: 'dev-server', message: 'uem-log append', context: { text } })

@@ -13,32 +13,54 @@ function fromHangulCodepoint(cp) {
   return idx
 }
 
-// lossy hash-based encoding of Coord9 into 20 Hangul chars (base-11172)
+// reversible packing of Coord9 into 20 base-11172 digits
 function encodeCoord(coord) {
-  const data = [coord.t, coord.x, coord.a, coord.w, coord.j, coord.k, coord.p, coord.m, coord.c]
-  let hash = BigInt(0)
-  for (const v of data) {
-    hash ^= BigInt(v) + (hash << BigInt(7)) + (hash >> BigInt(3))
-    hash &= BigInt('0xffffffffffffffff')
+  // bit layout (total 204 bits): t48 | x48 | a16 | w16 | j48 | k16 | p4 | m4 | c4
+  let val = BigInt(0)
+  val = (val << 48n) + (BigInt(coord.t) & ((1n<<48n)-1n))
+  val = (val << 48n) + (BigInt(coord.x) & ((1n<<48n)-1n))
+  val = (val << 16n) + (BigInt(coord.a) & ((1n<<16n)-1n))
+  val = (val << 16n) + (BigInt(coord.w) & ((1n<<16n)-1n))
+  val = (val << 48n) + (BigInt(coord.j) & ((1n<<48n)-1n))
+  val = (val << 16n) + (BigInt(coord.k) & ((1n<<16n)-1n))
+  val = (val << 4n)  + (BigInt(coord.p) & 0xfn)
+  val = (val << 4n)  + (BigInt(coord.m) & 0xfn)
+  val = (val << 4n)  + (BigInt(coord.c) & 0xfn)
+
+  const digits = []
+  for (let i=0;i<ID_LEN;i++) {
+    const d = Number(val % BigInt(HANGUL_COUNT))
+    digits.push(String.fromCodePoint(toHangulCodepoint(d)))
+    val /= BigInt(HANGUL_COUNT)
   }
-  const chars = []
-  for (let i = 0; i < ID_LEN; i++) {
-    const digit = Number(hash % BigInt(HANGUL_COUNT))
-    chars.push(String.fromCodePoint(toHangulCodepoint(digit)))
-    hash /= BigInt(HANGUL_COUNT)
-  }
-  return chars.join('')
+  return digits.reverse().join('')
 }
 
 function decodeId(id) {
-  if (id.length !== ID_LEN) throw new Error('invalid JiwolId length')
-  const digits = Array.from(id).map((ch) => fromHangulCodepoint(ch.codePointAt(0)))
-  // lossy reverse: reconstruct hash only; coordinates cannot be fully recovered
-  let hash = BigInt(0)
-  for (let i = digits.length - 1; i >= 0; i--) {
-    hash = hash * BigInt(HANGUL_COUNT) + BigInt(digits[i])
+  if ([...id].length !== ID_LEN) throw new Error('invalid JiwolId length')
+  let val = BigInt(0)
+  for (const ch of [...id]) {
+    const d = fromHangulCodepoint(ch.codePointAt(0))
+    val = val * BigInt(HANGUL_COUNT) + BigInt(d)
   }
-  return { hash }
+  function take(bits) {
+    const mask = (1n<<BigInt(bits))-1n
+    const out = val & mask
+    val >>= BigInt(bits)
+    return out
+  }
+  const c = take(4)
+  const m = take(4)
+  const p = take(4)
+  const k = take(16)
+  const j = take(48)
+  const w = take(16)
+  const a = take(16)
+  const x = take(48)
+  const t = take(48)
+  return {
+    t, x, a: Number(a), w: Number(w), j, k: Number(k), p: Number(p), m: Number(m), c: Number(c)
+  }
 }
 
 module.exports = { encodeCoord, decodeId, HANGUL_COUNT, ID_LEN }
