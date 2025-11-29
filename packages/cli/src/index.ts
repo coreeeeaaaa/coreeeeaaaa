@@ -4,7 +4,9 @@ import { initCommand } from './commands/init.js';
 import { gateCommand } from './commands/gate.js';
 import { evidenceCommand } from './commands/evidence.js';
 import { pointerCommand } from './commands/pointer.js';
+import { autonomousCommand } from './commands/autonomous.js';
 import { createRequire } from 'module';
+
 const require = createRequire(import.meta.url);
 const packageJson = require('../package.json');
 
@@ -40,5 +42,12 @@ program
   .argument('<hash>', 'New canon/blueprint hash')
   .option('--if-match <etag>', 'Optimistic locking ETag')
   .action(pointerCommand);
+
+program
+  .command('autonomous')
+  .description('Start autonomous agent loop')
+  .option('--llm <provider>', 'LLM provider (ollama, claude-cli, etc.)')
+  .option('--model <model>', 'Model name (optional)')
+  .action(autonomousCommand);
 
 program.parse();
