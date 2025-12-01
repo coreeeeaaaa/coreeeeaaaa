@@ -1,10 +1,13 @@
 pub mod ahs;
 pub mod complex;
 pub mod coord;
+pub mod gggm;
+pub mod hypervisor;
 pub mod jiwol_id;
 pub mod ledger;
 pub mod quantum;
 pub mod scd;
+pub mod spec;
 pub mod uem_tree;
 
 use crate::ahs::validate_evolution;
