@@ -1,0 +1,13 @@
+[storage]
+provider = "local-fs"
+
+[storage.local-fs]
+root = "artifacts"
+
+[storage.gcp-firestore]
+
+[storage.aws-dynamodb]
+
+[storage.azure-cosmos]
+
+[storage.http-rest]

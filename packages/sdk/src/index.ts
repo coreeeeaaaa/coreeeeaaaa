@@ -2,6 +2,7 @@ import path from 'path';
 import { mkdir, readFile, writeFile, appendFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
 import Ajv from 'ajv';
 import { 
   CoreConfig, 
@@ -19,6 +20,9 @@ import {
   isoNow, 
   anonymizeContent 
 } from './utils.js';
+
+import { getStorage } from './storage';
+import type { GateRecord, LogRecord, StatusSnapshot } from './storage/types';
 
 export * from './types.js';
 export * from './utils.js';
@@ -244,6 +248,8 @@ export class CoreSDK {
           // Fallback for environments without cargo/binary; keep non-fatal
           console.warn('mocking rust engine call (logger fallback):', err?.message || err);
       }
+
+      await this.writeStorageLogRecord(fullEntry);
   }
 
   /**
