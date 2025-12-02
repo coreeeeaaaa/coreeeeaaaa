@@ -18,11 +18,14 @@ import {
   hashString, 
   compactTs, 
   isoNow, 
-  anonymizeContent 
+  anonymizeContent,
+  multiHash
 } from './utils.js';
 
 import { getStorage } from './storage';
 import type { GateRecord, LogRecord, StatusSnapshot } from './storage/types';
+import { validate2of3 } from './evidence-validator.js';
+import type { EvidenceSource } from './evidence-validator.js';
 
 export * from './types.js';
 export * from './utils.js';
@@ -149,6 +152,11 @@ export class CoreSDK {
         text: `Collected evidence: ${evidence.type} (${path.basename(evidence.path)})`,
         meta: { hash: contentHash }
     });
+
+    const evidenceSources = this.collectEvidenceSources(evidence);
+    if (!validate2of3(evidenceSources)) {
+      console.warn('Evidence 2-of-3 rule not satisfied; consider adding another source');
+    }
   }
 
   /**
@@ -310,5 +318,35 @@ export class CoreSDK {
           child.stdin.write(payload);
           child.stdin.end();
       });
+  private collectEvidenceSources(evidence: EvidencePayload) {
+      const sources: EvidenceSource[] = [];
+      const metaSources = evidence.meta?.sources;
+      if (Array.isArray(metaSources)) {
+          for (const src of metaSources) {
+              if (src.kind && src.hash) {
+                  sources.push({
+                      kind: src.kind,
+                      hash: src.hash,
+                      timestamp: src.timestamp || isoNow(),
+                  });
+              }
+          }
+      }
+      sources.push({
+          kind: evidence.kind || this.inferEvidenceKind(evidence),
+          hash: evidence.hash || hashObject(evidence),
+          timestamp: evidence.meta?.timestamp || isoNow(),
+      });
+      return sources;
+  }
+
+  private inferEvidenceKind(evidence: EvidencePayload): EvidenceSource['kind'] {
+      if (evidence.kind) return evidence.kind;
+      if (evidence.path?.includes('git')) return 'git';
+      if (evidence.type === 'trace' || evidence.meta?.source === 'trace') return 'trace';
+      return 'log';
+  }
+
+
   }
 }
