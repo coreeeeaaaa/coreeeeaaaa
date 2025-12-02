@@ -5,6 +5,10 @@ export interface LogRecord {
   actor: string;
   kind: string;
   payload: unknown;
+  hashes?: {
+    sha256: string;
+    sha3: string;
+  };
 }
 
 export interface GateRecord {
