@@ -198,7 +198,24 @@ export class CoreSDK {
         etag: hashObject({ hash, supersedes, snapshotTs })
     };
 
-    await writeFile(pointerFile, JSON.stringify(record, null, 2));
+    const tmpFile = `${pointerFile}.tmp.${Date.now()}`;
+    await writeFile(tmpFile, JSON.stringify(record, null, 2));
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        await rename(tmpFile, pointerFile);
+        break;
+      } catch (err: any) {
+        if (attempt === maxAttempts) {
+          await unlink(tmpFile).catch(() => undefined);
+          throw new Error(`Failed to write pointer after ${maxAttempts} attempts: ${err.message}`);
+        }
+        if (err.code !== 'EEXIST') {
+          await unlink(tmpFile).catch(() => undefined);
+          throw err;
+        }
+      }
+    }
     
     await this.log({
         type: 'pointer_update',
