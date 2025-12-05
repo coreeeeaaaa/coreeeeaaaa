@@ -1,5 +1,5 @@
 import path from 'path';
-import { mkdir, readFile, writeFile, appendFile } from 'fs/promises';
+import { mkdir, readFile, writeFile, appendFile, rename, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
@@ -22,8 +22,8 @@ import {
   multiHash
 } from './utils.js';
 
-import { getStorage } from './storage';
-import type { GateRecord, LogRecord, StatusSnapshot } from './storage/types';
+import { getStorage } from './storage/index.js';
+import type { GateRecord, LogRecord, StatusSnapshot } from './storage/types.js';
 import { validate2of3 } from './evidence-validator.js';
 import type { EvidenceSource } from './evidence-validator.js';
 
@@ -277,6 +277,35 @@ export class CoreSDK {
       await this.writeStorageLogRecord(fullEntry);
   }
 
+  private async writeStorageLogRecord(entry: LogEntry & { ts: string; ts_compact: string }) {
+      try {
+          const storage = await getStorage();
+          const rec: LogRecord = {
+              id: entry.context || entry.type || 'log',
+              ts: entry.ts,
+              project: this.config.projectId || 'default',
+              actor: entry.actor,
+              kind: entry.type,
+              payload: entry,
+          };
+          await storage.writeLog(rec);
+      } catch (err: any) {
+          // non-fatal for environments without configured storage
+          console.warn('storage log write skipped:', err?.message || err);
+      }
+
+      // Always persist to artifactsDir/logs for local-first behavior
+      try {
+          const logsDir = path.join(this.artifactsDir, 'logs');
+          await mkdir(logsDir, { recursive: true });
+          const date = entry.ts.slice(0, 10);
+          const file = path.join(logsDir, `${date}.log`);
+          await appendFile(file, JSON.stringify(entry) + '\n');
+      } catch (err: any) {
+          console.warn('local log write skipped:', err?.message || err);
+      }
+  }
+
   /**
    * Push log entry to Rust UEM engine via binary or cargo run.
    */
@@ -318,6 +347,8 @@ export class CoreSDK {
           child.stdin.write(payload);
           child.stdin.end();
       });
+  }
+
   private collectEvidenceSources(evidence: EvidencePayload) {
       const sources: EvidenceSource[] = [];
       const metaSources = evidence.meta?.sources;
@@ -346,7 +377,13 @@ export class CoreSDK {
       if (evidence.type === 'trace' || evidence.meta?.source === 'trace') return 'trace';
       return 'log';
   }
+}
 
+export class AutonomousAgent {
+  constructor(private opts: { projectId?: string; rootDir?: string }) {}
 
+  async startLoop(meta: Record<string, any>): Promise<void> {
+    // Placeholder loop; real agent logic not implemented
+    console.warn('AutonomousAgent.startLoop is a stub; no actions performed', meta);
   }
 }

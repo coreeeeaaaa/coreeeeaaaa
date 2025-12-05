@@ -10,7 +10,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/mcp-server.js"
+    "start": "node dist/mcp-server.js",
+    "test": "echo '(core) no tests'"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.24.3",

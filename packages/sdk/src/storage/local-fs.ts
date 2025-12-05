@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { StorageDriver, LogRecord, GateRecord, StatusSnapshot } from './types';
-import { StorageConfig, LocalFsConfig } from '../config/storage-config';
+import { StorageDriver, LogRecord, GateRecord, StatusSnapshot } from './types.js';
+import { StorageConfig, LocalFsConfig } from '../config/storage-config.js';
 
 const DEFAULT_ROOT = 'artifacts';
 

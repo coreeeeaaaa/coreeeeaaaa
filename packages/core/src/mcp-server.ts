@@ -146,13 +146,13 @@ const TOOLS: Tool[] = [
   {
     name: 'serena',
     description:
-      'Serena MCP integration: manage project memory (.serena/memories/). Actions: config, list, read, write, delete.',
+      'Serena MCP integration: manage and search project memory (.serena/memories/ + .coreeeeaaaa/memory/). Actions: config, list, read, write, delete, search.',
     inputSchema: {
       type: 'object',
       properties: {
         action: {
           type: 'string',
-          enum: ['config', 'list', 'read', 'write', 'delete'],
+          enum: ['config', 'list', 'read', 'write', 'delete', 'search'],
           description: 'Action to perform',
         },
         name: {
@@ -162,6 +162,10 @@ const TOOLS: Tool[] = [
         content: {
           type: 'string',
           description: 'Memory content (required for write)',
+        },
+        query: {
+          type: 'string',
+          description: 'Search query (required for search)',
         },
       },
       required: ['action'],
@@ -295,12 +299,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'serena': {
         const { action, name, content } = args as {
-          action: 'config' | 'list' | 'read' | 'write' | 'delete';
+          action: 'config' | 'list' | 'read' | 'write' | 'delete' | 'search';
           name?: string;
           content?: string;
+          query?: string;
         };
 
-        const result = await serena(action, name, content);
+        const result = await serena(action, name, content, (args as any).query);
 
         return {
           content: [
