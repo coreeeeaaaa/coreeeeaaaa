@@ -26,6 +26,7 @@ export interface EvidencePayload {
   content?: string | Buffer;
   hash?: string;
   meta?: Record<string, any>;
+  kind?: 'log' | 'trace' | 'git';
 }
 
 export interface BudgetPayload {
@@ -44,3 +45,18 @@ export interface LogEntry {
   text: string;
   [key: string]: any;
 }
+
+export interface GateRecord {
+  id: GateId;
+  ts: string;
+  project: string;
+  input: GateInput;
+  result: GateResult;
+}
+
+export interface StatusSnapshot {
+  ts: string;
+  project?: string;
+  summary: any;
+}
+

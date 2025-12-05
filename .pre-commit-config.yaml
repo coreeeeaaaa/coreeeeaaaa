@@ -6,6 +6,10 @@ repos:
         entry: node scripts/stub-guard.js
         language: system
         files: "(src|packages|functions|policy|schema)/.*\.(js|ts|json|rego)"
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-yaml
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.18.2
     hooks:

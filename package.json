@@ -1,7 +1,6 @@
 {
   "name": "coreeeeaaaa",
   "version": "0.1.0",
-  "private": true,
   "workspaces": [
     "packages/*"
   ],
@@ -9,18 +8,21 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
-    "publish": "npm publish --workspaces"
+    "publish": "npm publish --workspaces",
+    "opa-check": "node scripts/opa-check.js"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
     "ajv": "^8.17.1",
     "commander": "^11.1.0",
     "firebase-admin": "^13.6.0"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "ts-node": "^10.9.2"
   }
 }

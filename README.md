@@ -21,6 +21,13 @@ npm install -g @coreeeeaaaa/cli
 coreeeeaaaa init
 ```
 
+## Storage drivers (Local-first by default)
+
+- The canonical UEM ledger lives in `.core/core.uem`, but all auxiliary logs/gates/status snapshots flow through a `StorageDriver` abstraction.
+- `.core/storage.toml` (plus `COREEEEEAAAA_STORAGE_PROVIDER`) selects the provider: `local-fs` (default), `gcp-firestore`, `aws-dynamodb`, `azure-cosmos`, or `http-rest`.
+- `packages/sdk/src/storage` implements the interface; `local-fs` writes into `artifacts/logs`, `artifacts/gates`, and `artifacts/status`. The other modules are placeholders that throw until you implement them.
+- See `docs/LOCAL_FIRST.md` for the local-only workflow and `docs/STORAGE_BACKENDS.md` for the inventory of existing logging endpoints.
+
 ## Privacy / anonymization
 - CLI supports input redaction: `--project <name>` and `--redact <regex...>` remove project names, domains, and secrets before any policy/validation.
 - Sample local config for private repos: `docs/CONFIG_SAMPLE.md` (keep in `.coreeeeaaaa/config.json`, gitignored).
@@ -63,6 +70,10 @@ Use `actions/gate` inside workflows:
 ## Auto PR / auto merge
 - On push to `automation`, `.github/workflows/create-pr.yml` opens a PR to `main` if none exists.
 - After `guard` workflow succeeds, `.github/workflows/auto-merge.yml` auto-merges that PR (squash).
+
+## Legal / Disclaimer
+
+This repository and its CLI/SDK packages are provided “as-is” under the Apache 2.0 license. No warranties are extended, and the maintainers are not liable for any direct, indirect, or consequential damages arising from the use of this software. When you build or publish the packages, ensure that you comply with all third-party license terms referenced in `package-lock.json` and `pnpm-lock.yaml`.
 
 ## Notes
 - Project-agnostic; configure your own Firebase project ID and dev_ai token.

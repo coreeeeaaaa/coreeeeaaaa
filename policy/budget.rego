@@ -1,4 +1,4 @@
-package budget
+package budget.gate
 
 default allow = false
 
@@ -9,10 +9,10 @@ allow {
 
 deny[msg] {
   not input.cost.collected
-  msg := "no cost signal"
+  msg := "Budget signal missing (fail-closed)"
 }
 
 deny[msg] {
   input.cost.total > input.cost.budget
-  msg := sprintf("cost %v exceeds budget %v", [input.cost.total, input.cost.budget])
+  msg := sprintf("Budget exceeded: %.2f > %.2f", [input.cost.total, input.cost.budget])
 }

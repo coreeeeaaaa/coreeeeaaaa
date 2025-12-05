@@ -49,3 +49,22 @@ jobs:
           echo "Uploading provenance to Rekor transparency log..."
           # Assuming sigstore CLI is available or install
           # sigstore sign --rekor-url https://rekor.sigstore.dev --artifact <artifact> --provenance <provenance>
+
+  budget_gate:
+    needs: test_packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64_static
+          chmod +x ./opa
+      - name: Ensure artifacts budget
+        run: |
+          mkdir -p artifacts/budget
+          mkdir -p artifacts/gates/budget
+      - name: Run OPA budget gate
+        env:
+          BUDGET: 100
+          OPA_BIN: ./opa
+        run: npm run opa-check

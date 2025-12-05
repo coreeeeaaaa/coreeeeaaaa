@@ -1,6 +1,5 @@
 use crate::quantum::UemQuantum;
-
-const ALPHA: f32 = 0.8;
+use crate::spec::SPEC;
 const TIME_WEIGHT: f32 = 0.1;
 const BASE_ALLOWANCE: f32 = 1.0;
 
@@ -14,5 +13,6 @@ fn dist(prev: &UemQuantum, next: &UemQuantum) -> f32 {
 pub fn validate_evolution(prev: &UemQuantum, next: &UemQuantum) -> bool {
     let prev_mag = prev.thickness.mag() + BASE_ALLOWANCE;
     let d = dist(prev, next);
-    d <= ALPHA * prev_mag + BASE_ALLOWANCE
+    let alpha = SPEC.ahs.alpha;
+    d <= alpha * prev_mag + BASE_ALLOWANCE
 }

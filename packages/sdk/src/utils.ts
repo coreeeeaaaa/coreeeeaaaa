@@ -1,8 +1,17 @@
 import { createHash } from 'crypto';
 
 export function hashObject(value: any): string {
-  const normalized = JSON.stringify(value ?? {}, null, 2);
+  const obj = value ?? {};
+  const allKeys = Object.keys(obj).sort();
+  const normalized = JSON.stringify(obj, allKeys, 2);
   return createHash('sha256').update(normalized).digest('hex');
+}
+
+export function multiHash(data: string): { sha256: string; keccak256: string } {
+  return {
+    sha256: createHash('sha256').update(data).digest('hex'),
+    keccak256: createHash('keccak256').update(data).digest('hex'),
+  };
 }
 
 export function hashString(value: string): string {
