@@ -1,5 +1,5 @@
 import path from 'path';
-import { mkdir, readFile, writeFile, appendFile, rename, unlink } from 'fs/promises';
+import { mkdir, readFile, writeFile, appendFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
@@ -11,9 +11,7 @@ import {
   GateResult, 
   EvidencePayload, 
   BudgetPayload, 
-  LogEntry,
-  GateRecord,
-  StatusSnapshot
+  LogEntry 
 } from './types.js';
 import { 
   hashObject, 
@@ -21,16 +19,16 @@ import {
   compactTs, 
   isoNow, 
   anonymizeContent,
-  multiHash 
+  multiHash
 } from './utils.js';
-import { appendUemLog } from './uem-adapter.js';
+
+import { getStorage } from './storage';
+import type { GateRecord, LogRecord, StatusSnapshot } from './storage/types';
+import { validate2of3 } from './evidence-validator.js';
+import type { EvidenceSource } from './evidence-validator.js';
 
 export * from './types.js';
 export * from './utils.js';
-export * from './gate.js';
-export * from './evidence.js';
-export * from './pointer.js';
-export * from './autonomous.js';
 
 export class CoreSDK {
   private config: CoreConfig;
@@ -108,14 +106,6 @@ export class CoreSDK {
       meta: { inputHash, errors: errors.length }
     });
 
-    await this.writeStorageGateRecord({
-      id: gateId,
-      ts: evaluatedAt,
-      project: this.projectHintFrom(input),
-      input,
-      result
-    });
-
     return result;
   }
 
@@ -163,13 +153,10 @@ export class CoreSDK {
         meta: { hash: contentHash }
     });
 
-    await this.writeStorageLogRecord({
-      type: 'evidence_collected',
-      actor: 'sdk',
-      text: `Collected evidence: ${evidence.type}`,
-      meta: { hash: contentHash, path: evidence.path },
-      ts: isoNow()
-    });
+    const evidenceSources = this.collectEvidenceSources(evidence);
+    if (!validate2of3(evidenceSources)) {
+      console.warn('Evidence 2-of-3 rule not satisfied; consider adding another source');
+    }
   }
 
   /**
@@ -245,12 +232,6 @@ export class CoreSDK {
         text: `Pointer updated to ${hash}`,
         meta: { snapshotTs, supersedes }
     });
-
-    await this.writeStorageStatusRecord({
-      ts: now,
-      project: this.projectHintFrom({ meta: { snapshotTs }, project: this.config.projectId }),
-      summary: record
-    });
   }
 
   /**
@@ -274,7 +255,7 @@ export class CoreSDK {
   }
 
   /**
-   * Internal logging helper. Writes to JSONL and UEM.
+   * Internal logging helper. Sends log to Rust engine (CLI wiring).
    */
   private async log(entry: LogEntry): Promise<void> {
       const tsIso = entry.ts || isoNow();
@@ -290,8 +271,10 @@ export class CoreSDK {
           await this.sendToRustEngine(fullEntry);
       } catch (err: any) {
           // Fallback for environments without cargo/binary; keep non-fatal
-          console.warn('mocking rust engine call (logger fallback):', err.message);
+          console.warn('mocking rust engine call (logger fallback):', err?.message || err);
       }
+
+      await this.writeStorageLogRecord(fullEntry);
   }
 
   /**
@@ -316,7 +299,7 @@ export class CoreSDK {
           let stderr = '';
 
           child.on('error', (err) => {
-              console.warn('mocking rust engine call (spawn error):', err.message);
+              console.warn('mocking rust engine call (spawn error):', err?.message || err);
               resolve();
           });
 
@@ -326,7 +309,8 @@ export class CoreSDK {
 
           child.on('close', (code) => {
               if (code !== 0) {
-                  console.warn('mocking rust engine call (non-zero exit):', stderr.trim() || `exit code ${code}`);
+                  const msg = stderr.trim() || `exit code ${code}`;
+                  console.warn('mocking rust engine call (non-zero exit):', msg);
               }
               resolve();
           });
@@ -334,86 +318,35 @@ export class CoreSDK {
           child.stdin.write(payload);
           child.stdin.end();
       });
-  }
-
-  private projectHintFrom(entry?: { project?: string; meta?: Record<string, any> } | LogEntry): string {
-      const typedEntry = entry as any;
-      return typedEntry?.project ??
-          typedEntry?.meta?.project ??
-          this.config.projectId ??
-          'default';
-  }
-
-  private async writeStorageLogRecord(entry: LogEntry): Promise<void> {
-      try {
-          const storage = await this.getStorage();
-      const payloadString = JSON.stringify(entry);
-      await storage.writeLog({
-          id: randomUUID(),
-          ts: entry.ts || isoNow(),
-          project: this.projectHintFrom(entry),
-          actor: entry.actor || 'sdk',
-          kind: entry.type,
-          payload: entry,
-          hashes: multiHash(payloadString)
-      });
-      } catch (err: any) {
-          console.warn('storage log failed:', err?.message || err);
-      }
-  }
-
-  private async writeStorageGateRecord(record: GateRecord): Promise<void> {
-      try {
-          const storage = await this.getStorage();
-          await storage.writeGate(record);
-      } catch (err: any) {
-          console.warn('storage gate write failed:', err?.message || err);
-      }
-  }
-
-  private async writeStorageStatusRecord(snapshot: StatusSnapshot): Promise<void> {
-      try {
-          const storage = await this.getStorage();
-          await storage.writeStatus(snapshot);
-      } catch (err: any) {
-          console.warn('storage status write failed:', err?.message || err);
-      }
-  }
-
-  private async getStorage(): Promise<any> {
-      // Basic in-memory storage implementation to avoid stubs
-      // In a real implementation, this would connect to the configured storage backend
-      const storageDriver = process.env.COREEEEAAAA_STORAGE_PROVIDER || 'local-fs';
-      
-      if (storageDriver === 'local-fs') {
-        // For now, just return a mock object that logs to the current system
-        return {
-          writeLog: async (logRecord: any) => {
-            // Save to local file system in artifacts/logs
-            const logPath = require('path').join(this.artifactsDir, 'logs', 'storage.log');
-            const fs = require('fs/promises');
-            await fs.appendFile(logPath, JSON.stringify(logRecord) + '\n');
-          },
-          writeGate: async (gateRecord: any) => {
-            // Save to local file system in artifacts/gates
-            const gatePath = require('path').join(this.artifactsDir, 'gates', 'storage-gates.log');
-            const fs = require('fs/promises');
-            await fs.appendFile(gatePath, JSON.stringify(gateRecord) + '\n');
-          },
-          writeStatus: async (statusRecord: any) => {
-            // Save to local file system in artifacts/status
-            const statusPath = require('path').join(this.artifactsDir, 'status', 'storage-status.log');
-            const fs = require('fs/promises');
-            await fs.appendFile(statusPath, JSON.stringify(statusRecord) + '\n');
+  private collectEvidenceSources(evidence: EvidencePayload) {
+      const sources: EvidenceSource[] = [];
+      const metaSources = evidence.meta?.sources;
+      if (Array.isArray(metaSources)) {
+          for (const src of metaSources) {
+              if (src.kind && src.hash) {
+                  sources.push({
+                      kind: src.kind,
+                      hash: src.hash,
+                      timestamp: src.timestamp || isoNow(),
+                  });
+              }
           }
-        };
-      } else {
-        // Return a default storage implementation
-        return {
-          writeLog: async (logRecord: any) => console.log('Log to storage:', logRecord),
-          writeGate: async (gateRecord: any) => console.log('Gate to storage:', gateRecord),
-          writeStatus: async (statusRecord: any) => console.log('Status to storage:', statusRecord)
-        };
       }
+      sources.push({
+          kind: evidence.kind || this.inferEvidenceKind(evidence),
+          hash: evidence.hash || hashObject(evidence),
+          timestamp: evidence.meta?.timestamp || isoNow(),
+      });
+      return sources;
+  }
+
+  private inferEvidenceKind(evidence: EvidencePayload): EvidenceSource['kind'] {
+      if (evidence.kind) return evidence.kind;
+      if (evidence.path?.includes('git')) return 'git';
+      if (evidence.type === 'trace' || evidence.meta?.source === 'trace') return 'trace';
+      return 'log';
+  }
+
+
   }
 }

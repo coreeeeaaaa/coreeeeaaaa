@@ -7,14 +7,10 @@
   "exports": {
     ".": "./dist/index.js",
     "./autonomous": "./dist/autonomous.js",
+    "./uem": "./dist/uem.js",
     "./gate": "./dist/gate.js",
     "./evidence": "./dist/evidence.js",
-    "./pointer": "./dist/pointer.js",
-    "./types": "./dist/types.js",
-    "./proxy": "./dist/proxy.js",
-    "./storage": "./dist/storage.js",
-    "./uem-adapter": "./dist/uem-adapter.js",
-    "./utils": "./dist/utils.js"
+    "./pointer": "./dist/pointer.js"
   },
   "license": "Apache-2.0",
   "engines": {
@@ -27,10 +23,9 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@iarna/toml": "^2.2.5",
     "ajv": "^8.17.1",
     "uuid": "^9.0.0",
-    "firebase-admin": "^12.1.0"
+    "js-sha3": "^0.8.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
