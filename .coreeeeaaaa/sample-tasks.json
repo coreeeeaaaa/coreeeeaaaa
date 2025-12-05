@@ -1,0 +1,58 @@
+[
+  {
+    "id": "TASK-001",
+    "type": "development",
+    "description": "Implement user registration functionality",
+    "context": {
+      "requirements": [
+        "User can register with email and password",
+        "Password must be at least 8 characters",
+        "Email must be unique",
+        "Send verification email after registration"
+      ],
+      "tech_stack": ["TypeScript", "Express", "MongoDB"],
+      "security_considerations": [
+        "Password hashing with bcrypt",
+        "Input validation and sanitization",
+        "Rate limiting to prevent abuse"
+      ]
+    },
+    "status": "pending",
+    "assignedAgent": "developer",
+    "createdAt": "2025-12-02T00:00:00.000Z"
+  },
+  {
+    "id": "TASK-002",
+    "type": "review",
+    "description": "Code review for user registration module",
+    "context": {
+      "target": "user registration module",
+      "review_aspects": [
+        "Code quality and readability",
+        "Security vulnerabilities",
+        "Performance implications",
+        "Best practices adherence"
+      ]
+    },
+    "status": "pending",
+    "assignedAgent": "reviewer",
+    "createdAt": "2025-12-02T00:00:00.000Z"
+  },
+  {
+    "id": "TASK-003",
+    "type": "testing",
+    "description": "Create test suite for user registration",
+    "context": {
+      "target": "user registration module",
+      "test_types": [
+        "Unit tests for registration function",
+        "Integration tests for API endpoints",
+        "Security tests for vulnerabilities",
+        "Edge case testing"
+      ]
+    },
+    "status": "pending",
+    "assignedAgent": "tester",
+    "createdAt": "2025-12-02T00:00:00.000Z"
+  }
+]

@@ -1,0 +1,1 @@
+/Users/a/personaluse/gemini_dev/coreeeeaaaa/.coreeeeaaaa/memory/constitution.md

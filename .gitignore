@@ -12,3 +12,17 @@ artifacts/
 .cache/
 *.tsbuildinfo
 *.log
+
+# Internal work directories
+.context/
+.core/
+
+# Build artifacts
+build_output/
+*.zip
+
+# Local config (may contain secrets)
+opencode.json
+
+# Claude Desktop personal config
+claude_desktop_config.json

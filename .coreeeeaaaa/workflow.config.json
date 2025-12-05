@@ -1,0 +1,31 @@
+{
+  "projectId": "advanced-workflow-demo",
+  "provider": "ollama",
+  "model": "llama2",
+  "maxIterations": 3,
+  "agents": {
+    "developer": {
+      "role": "developer",
+      "temperature": 0.1,
+      "maxTokens": 2048
+    },
+    "reviewer": {
+      "role": "reviewer",
+      "temperature": 0.1,
+      "maxTokens": 2048
+    },
+    "tester": {
+      "role": "tester", 
+      "temperature": 0.1,
+      "maxTokens": 2048
+    }
+  },
+  "validation": {
+    "approvalThreshold": 0.6,
+    "minScore": 0.5
+  },
+  "logging": {
+    "level": "info",
+    "auditTrail": true
+  }
+}
