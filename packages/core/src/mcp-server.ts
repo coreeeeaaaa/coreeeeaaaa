@@ -27,6 +27,8 @@ import { manageSpec } from './tools/specBridge.js';
 import { consultConstitution } from './tools/constitution.js';
 import { auditSecurity } from './tools/securityAudit.js';
 import { speckit } from './tools/speckit.js';
+import { loadContext } from './tools/contextBridge.js';
+import { serena } from './tools/serenaBridge.js';
 
 // Tool definitions
 const TOOLS: Tool[] = [
@@ -125,6 +127,44 @@ const TOOLS: Tool[] = [
         },
       },
       required: ['phase'],
+    },
+  },
+  {
+    name: 'context7',
+    description:
+      'Load context using core/sdk/context7.js. Returns project context based on task.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        task: {
+          type: 'object',
+          description: 'Task object for context loading',
+        },
+      },
+    },
+  },
+  {
+    name: 'serena',
+    description:
+      'Serena MCP integration: manage project memory (.serena/memories/). Actions: config, list, read, write, delete.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: ['config', 'list', 'read', 'write', 'delete'],
+          description: 'Action to perform',
+        },
+        name: {
+          type: 'string',
+          description: 'Memory name (required for read/write/delete)',
+        },
+        content: {
+          type: 'string',
+          description: 'Memory content (required for write)',
+        },
+      },
+      required: ['action'],
     },
   },
 ];
@@ -228,6 +268,39 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
 
         const result = await speckit(phase, action, feature_name, content);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'context7': {
+        const { task } = args as { task?: any };
+        const result = await loadContext(task);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'serena': {
+        const { action, name, content } = args as {
+          action: 'config' | 'list' | 'read' | 'write' | 'delete';
+          name?: string;
+          content?: string;
+        };
+
+        const result = await serena(action, name, content);
 
         return {
           content: [
