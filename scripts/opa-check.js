@@ -1,20 +1,45 @@
 #!/usr/bin/env node
+// OPA check runner. Fails if opa is missing or evaluation fails.
+// Expects gate input at policy/input.json (adjust if needed).
 
-/**
- * OPA Policy Check Stub
- *
- * This is a placeholder for Open Policy Agent policy validation.
- * Currently returns success (exit code 0) for all checks.
- *
- * TODO: Implement actual OPA policy validation:
- * 1. Load policy files from policy/ directory
- * 2. Validate against OPA server
- * 3. Return detailed compliance results
- */
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-console.log('opa-check stub: no script provided yet');
-console.log('Note: OPA policy validation is currently a stub implementation');
-console.log('To enable actual policy checking, implement OPA integration in this script');
+const REGO = 'policy/gate.rego';
+const INPUT = 'policy/input.json';
 
-// Always exit successfully for now
-process.exit(0);
+function exists(p) {
+  try { fs.accessSync(p); return true; } catch { return false; }
+}
+
+if (!exists(REGO)) {
+  console.error(`[opa-check] Missing policy file: ${REGO}`);
+  process.exit(1);
+}
+if (!exists(INPUT)) {
+  console.error(`[opa-check] Missing input file: ${INPUT}`);
+  process.exit(1);
+}
+
+try {
+  execSync('opa version', { stdio: 'ignore' });
+} catch {
+  console.error('[opa-check] opa not installed. Install: https://www.openpolicyagent.org/docs/');
+  process.exit(1);
+}
+
+try {
+  const cmd = `opa eval -i ${INPUT} -d ${REGO} "data.gate.allow"`;
+  const out = execSync(cmd, { encoding: 'utf8' });
+  if (!out.includes('true')) {
+    console.error('[opa-check] gate.allow is not true');
+    console.error(out.trim());
+    process.exit(1);
+  }
+  console.log('[opa-check] gate.allow == true');
+} catch (err) {
+  console.error('[opa-check] evaluation failed');
+  console.error(err.stdout?.toString() || err.message);
+  process.exit(1);
+}

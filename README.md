@@ -95,6 +95,11 @@ curl http://127.0.0.1:3435/health
 - **포트 분리**: 독립 실행 시 포트 3435 사용 (기본 24282와 충돌 방지)
 - **환경변수 활성화**: `SERENA_ENABLED=true` 시 내부 MCP 자동 활성화
 
+## 품질 게이트 & Stop 규칙
+- DoD: 빌드(`npm run build --workspaces`), 테스트(`npm test --workspaces`), 정책(`npm run opa-check` 존재 시), 보안 스캔(gitleaks/trivy, 없으면 스킵 기록), 로그/증거 기록, 성능/커버리지 회귀 없음.
+- Stop: DoD가 모두 통과하고 신규 요구/회귀가 없으면 추가 “개선” 중단. 실패 시에만 개선 반복.
+- 자세한 규칙: `docs/QUALITY_GATES.md`
+
 ## 스크립트
 ```bash
 # Serena 서버 실행
@@ -108,6 +113,9 @@ npm run core:mcp
 
 # OPA 정책 검증 (현재 스텁)
 npm run opa-check
+
+# 출시 전 품질 게이트 (권장)
+npm run build --workspaces && npm run test --workspaces && npm run opa-check && task security
 ```
 
 ## Status

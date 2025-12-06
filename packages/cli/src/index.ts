@@ -49,6 +49,53 @@ program
   .option('--max-iterations <n>', 'Maximum iterations for improvement loops', parseInt)
   .action(workflowCommand);
 
+// Add gate command
+program
+  .command('gate <gateId>')
+  .description('Run a gate validation')
+  .option('-i, --input <path>', 'Input file path (JSON)')
+  .option('-s, --schema <path>', 'JSON Schema file path')
+  .option('-o, --out <path>', 'Output directory for results')
+  .action((gateId, options) => {
+    import('./commands/gate.js').then(({ gateCommand }) => {
+      gateCommand(gateId, options).catch(err => {
+        console.error(err.message);
+        process.exit(1);
+      });
+    });
+  });
+
+// Add evidence command
+program
+  .command('evidence <file>')
+  .description('Append evidence to the ledger')
+  .option('-t, --type <type>', 'Evidence type')
+  .option('-k, --kind <kind>', 'Evidence kind')
+  .action((file, options) => {
+    import('./commands/evidence.js').then(({ evidenceCommand }) => {
+      evidenceCommand(file, options).catch(err => {
+        console.error(err.message);
+        process.exit(1);
+      });
+    });
+  });
+
+// Add pointer command
+program
+  .command('pointer')
+  .description('Update the global pointer')
+  .option('-h, --hash <hash>', 'Content hash')
+  .option('-t, --snapshot <timestamp>', 'Snapshot timestamp')
+  .option('--if-match <etag>', 'CAS ETag check')
+  .action((options) => {
+    import('./commands/pointer.js').then(({ pointerCommand }) => {
+      pointerCommand(options).catch(err => {
+        console.error(err.message);
+        process.exit(1);
+      });
+    });
+  });
+
 // Add the autonomous command
 program
   .command('autonomous')
