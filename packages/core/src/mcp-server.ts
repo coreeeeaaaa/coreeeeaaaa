@@ -30,6 +30,37 @@ import { speckit } from './tools/speckit.js';
 import { loadContext } from './tools/contextBridge.js';
 import { serena } from './tools/serenaBridge.js';
 
+// Conditional Serena tool registration - disabled by default to avoid port conflicts
+// Enable with SERENA_ENABLED=true environment variable
+const serenaTool = process.env.SERENA_ENABLED !== 'false' ? {
+  name: 'serena',
+  description:
+    'Serena MCP integration: manage and search project memory (.serena/memories/ + .coreeeeaaaa/memory/). Actions: config, list, read, write, delete, search. NOTE: Requires SERENA_ENABLED=true',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {
+      action: {
+        type: 'string',
+        enum: ['config', 'list', 'read', 'write', 'delete', 'search'],
+        description: 'Action to perform',
+      },
+      name: {
+        type: 'string',
+        description: 'Memory name (required for read/write/delete)',
+      },
+      content: {
+        type: 'string',
+        description: 'Memory content (required for write)',
+      },
+      query: {
+        type: 'string',
+        description: 'Search query (required for search)',
+      },
+    },
+    required: ['action'],
+  },
+} : null;
+
 // Tool definitions
 const TOOLS: Tool[] = [
   {
@@ -143,35 +174,12 @@ const TOOLS: Tool[] = [
       },
     },
   },
-  {
-    name: 'serena',
-    description:
-      'Serena MCP integration: manage and search project memory (.serena/memories/ + .coreeeeaaaa/memory/). Actions: config, list, read, write, delete, search.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        action: {
-          type: 'string',
-          enum: ['config', 'list', 'read', 'write', 'delete', 'search'],
-          description: 'Action to perform',
-        },
-        name: {
-          type: 'string',
-          description: 'Memory name (required for read/write/delete)',
-        },
-        content: {
-          type: 'string',
-          description: 'Memory content (required for write)',
-        },
-        query: {
-          type: 'string',
-          description: 'Search query (required for search)',
-        },
-      },
-      required: ['action'],
-    },
-  },
 ];
+
+// Add Serena tool conditionally
+if (serenaTool) {
+  TOOLS.push(serenaTool);
+}
 
 // Create MCP server instance
 const server = new Server(
@@ -298,6 +306,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'serena': {
+        if (!serenaTool) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  {
+                    success: false,
+                    error: 'Serena tool is disabled. Set SERENA_ENABLED=true to enable.',
+                  },
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+        }
+
         const { action, name, content } = args as {
           action: 'config' | 'list' | 'read' | 'write' | 'delete' | 'search';
           name?: string;

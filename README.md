@@ -79,5 +79,37 @@ This repository and its CLI/SDK packages are provided “as-is” under the Apac
 - Project-agnostic; configure your own Firebase project ID and dev_ai token.
 - All access to Firestore dev logs is locked behind the `dev_ai` token in `firestore.rules`.
 
+## Serena (풀버전) 실행
+
+### 독립 서버 실행 (권장)
+```bash
+# Serena 독립 서버 시작 (포트 3435)
+uvx --from git+https://github.com/oraios/serena serena start-mcp-server --project . --port 3435
+
+# 헬스체크
+curl http://127.0.0.1:3435/health
+```
+
+### 내부 Serena MCP 설정
+- **기본 비활성 권장**: 내부 MCP 서버는 포트 충돌 방지를 위해 `SERENA_ENABLED=false` 환경변수로 비활성화
+- **포트 분리**: 독립 실행 시 포트 3435 사용 (기본 24282와 충돌 방지)
+- **환경변수 활성화**: `SERENA_ENABLED=true` 시 내부 MCP 자동 활성화
+
+## 스크립트
+```bash
+# Serena 서버 실행
+npm run serena:run
+
+# Serena 헬스체크
+npm run serena:health
+
+# core MCP 서버 실행
+npm run core:mcp
+
+# OPA 정책 검증 (현재 스텁)
+npm run opa-check
+```
+
 ## Status
 - SDK/CLI: v0.1.0 (Ready)
+- Serena 통합: v0.1.0 (포트 분리 완료)

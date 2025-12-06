@@ -9,7 +9,10 @@
     "test": "npm run test --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "publish": "npm publish --workspaces",
-    "opa-check": "node scripts/opa-check.js"
+    "opa-check": "node scripts/opa-check.js",
+    "serena:run": "uvx --from git+https://github.com/oraios/serena serena start-mcp-server --project . --port 3435",
+    "serena:health": "curl http://127.0.0.1:3435/health || true",
+    "core:mcp": "node packages/core/dist/mcp-server.js"
   },
   "engines": {
     "node": ">=18.0.0"
