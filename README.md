@@ -1,10 +1,10 @@
-# coreeeeaaaa V3.0.0.0
+# coreeeeaaaa V0.3.0
 
 🚀 **지속성 고도화 개발 자동화 프레임워크**
 
-Universal development automation framework with **V3 지속성 워크스페이스** - 반복 지시 없는 다중 에이전트 장기 작업 자율 운영 시스템.
+Universal development automation framework with **V0.3.0 지속성 워크스페이스** - 반복 지시 없는 다중 에이전트 장기 작업 자율 운영 시스템.
 
-## 🎯 V3.0.0.0 핵심 혁신
+## 🎯 V0.3.0 핵심 혁신
 
 ### 🤖 **다중 에이전트 시스템**
 - **boosaan**: 컨텍스트 관리자 - 상태 지속성, 세션 격리
@@ -35,9 +35,9 @@ Universal development automation framework with **V3 지속성 워크스페이�
 
 ## 🚀 Quick start
 
-### V3 지속성 워크스페이스 시작
+### V0.3.0 지속성 워크스페이스 시작
 ```bash
-# 1. V3 지속성 시스템 직접 실행
+# 1. V0.3.0 지속성 시스템 직접 실행
 python3 -c "
 import sys
 sys.path.append('.')
@@ -168,7 +168,7 @@ curl http://127.0.0.1:3435/health
 - Stop: DoD가 모두 통과하고 신규 요구/회귀가 없으면 추가 “개선” 중단. 실패 시에만 개선 반복.
 - 자세한 규칙: `docs/QUALITY_GATES.md`
 
-## 🔧 V3 지속성 시스템 아키텍처
+## 🔧 V0.3.0 지속성 시스템 아키텍처
 
 ### 📁 **핵심 구조**
 ```
@@ -216,14 +216,14 @@ npm run build --workspaces && npm run test --workspaces && npm run opa-check && 
 ```
 
 ## Status
-- **V3.0.0.0**: ✅ 지속성 워크스페이스 완전 통합
+- **V0.3.0**: ✅ 지속성 워크스페이스 완전 통합
 - **SDK/CLI**: v0.1.0 (Ready)
 - **Serena 통합**: v0.1.0 (포트 분리 완료)
 - **다중 에이전트**: ✅ 4개 전문가 에이전트 운영 중
 - **자동 복구**: ✅ 15분 간격 체크포인트 시스템
 - **실전 증명**: ✅ AI_기반_자동화_플랫폼� 프로젝트 운영
 
-## 🎯 V3 실전 운영 결과
+## 🎯 V0.3.0 실전 운영 결과
 
 ### 📊 **현재 운영 중인 프로젝트**
 - **AI_기반_자동화_플랫폼�**: 다중 에이전트 협업 시스템 구축
@@ -244,4 +244,4 @@ npm run build --workspaces && npm run test --workspaces && npm run opa-check && 
 
 ---
 
-**🚀 V3.0.0.0: 반복 지시 없는 완전 자동화 개발 환경**
+**🚀 V0.3.0: 반복 지시 없는 완전 자동화 개발 환경**
