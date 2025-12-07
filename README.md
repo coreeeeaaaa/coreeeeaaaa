@@ -1,6 +1,27 @@
-# coreeeeaaaa
+# coreeeeaaaa V3.0.0.0
 
-Universal development automation framework. This repo holds the SSOT for gates, logging, and CLI/SDK tooling.
+🚀 **지속성 고도화 개발 자동화 프레임워크**
+
+Universal development automation framework with **V3 지속성 워크스페이스** - 반복 지시 없는 다중 에이전트 장기 작업 자율 운영 시스템.
+
+## 🎯 V3.0.0.0 핵심 혁신
+
+### 🤖 **다중 에이전트 시스템**
+- **boosaan**: 컨텍스트 관리자 - 상태 지속성, 세션 격리
+- **uijeongboo**: 인터페이스 관리자 - UI 자동화, UX 최적화
+- **oolsaan**: 품질 보증 - 코드 검증, 자동 테스트, 성능 분석
+- **ilsaan**: 워크플로우 관리자 - 작업 순서화, 자동 복구
+
+### 🔄 **지속성 워크플로우 엔진**
+- **자동 작업 이어가기**: 15분 간격 체크포인트
+- **실패 자동 복구**: 중단 지점에서 즉시 재개
+- **에이전트 간 자동 전환**: 순차적 작업 흐름
+- **장기 작업 지원**: 여러 날에 걸친 고도화 작업
+
+### 💾 **상태 관리 시스템**
+- **Agent Registry**: 실시간 에이전트 상태 추적
+- **Task Continuum**: 워크플로우 템플릿 및 진행률 관리
+- **체크포인트 메모리**: `.persistence/agent_memory/`에 영구 저장
 
 ## Layout
 - `docs/` — ADAC / canon / process notes and logging protocol.
@@ -12,13 +33,60 @@ Universal development automation framework. This repo holds the SSOT for gates, 
 - `actions/` — composite GitHub Action for running a gate.
 - `.github/workflows/ci.yml` — install + CLI smoke test.
 
-## Quick start
-```bash
-# Install globally
-npm install -g @coreeeeaaaa/cli
+## 🚀 Quick start
 
-# Initialize a new project
+### V3 지속성 워크스페이스 시작
+```bash
+# 1. V3 지속성 시스템 직접 실행
+python3 -c "
+import sys
+sys.path.append('.')
+exec(open('.automation/task_templates/auto_continuation_engine.py').read())
+
+# 에이전트 활성화
+import asyncio
+engine = AutoContinuationEngine('.')
+
+# 복잡한 프로젝트 시작
+async def start_project():
+    result = await engine.start_workflow('development_cycle', {
+        'project_name': '내프로젝트',
+        'target_feature': '자동화_시스템',
+        'priority': 'high'
+    })
+    print(f'🚀 워크플로우 시작: {result[\"id\"]}')
+    print('🤖 에이전트들이 자동으로 작업을 시작합니다')
+
+asyncio.run(start_project())
+"
+
+# 2. 전통 coreeeeaaaa CLI 사용
+npm install -g @coreeeeaaaa/cli
 coreeeeaaaa init
+```
+
+### 📊 실시간 상태 확인
+```bash
+# 에이전트 상태 확인
+python3 -c "
+import json
+with open('.state_management/agent_registry.json', 'r') as f:
+    registry = json.load(f)
+
+for agent_id, agent in registry['agents'].items():
+    if agent.get('current_task'):
+        print(f'🤖 {agent[\"role\"]} ({agent_id}): {agent[\"current_task\"][\"description\"]}')
+"
+
+# 워크플로우 진행률 확인
+python3 -c "
+import json
+with open('.state_management/task_continuum.json', 'r') as f:
+    continuum = json.load(f)
+
+print(f'🔄 활성 워크플로우: {len(continuum.get(\"active_workflows\", []))}')
+print(f'✅ 완료 워크플로우: {len(continuum.get(\"completed_workflows\", []))}')
+"
 ```
 
 ## Storage drivers (Local-first by default)
@@ -100,6 +168,35 @@ curl http://127.0.0.1:3435/health
 - Stop: DoD가 모두 통과하고 신규 요구/회귀가 없으면 추가 “개선” 중단. 실패 시에만 개선 반복.
 - 자세한 규칙: `docs/QUALITY_GATES.md`
 
+## 🔧 V3 지속성 시스템 아키텍처
+
+### 📁 **핵심 구조**
+```
+├── .automation/
+│   └── task_templates/
+│       └── auto_continuation_engine.py    # 🚀 자동화 엔진
+├── .state_management/
+│   ├── agent_registry.json                 # 🤖 에이전트 상태
+│   └── task_continuum.json               # 🔄 워크플로우 관리
+├── .persistence/
+│   └── agent_memory/                       # 💾 체크포인트 저장
+│       ├── boosaan/                        # 컨텍스트 관리자
+│       ├── oolsaan/                         # 품질 보증
+│       ├── ilsaan/                          # 워크플로우 관리
+│       └── uijeongboo/                      # 인터페이스 관리
+└── .mcp.json                              # 🌐 MCP 서버 설정
+```
+
+### ⚙️ **워크플로우 템플릿**
+1. **development_cycle**: 요구사항 → 설계 → 구현 → 테스트 → 배포
+2. **feature_enhancement**: 분석 → 설계 → 구현 → 검증
+
+### 🎯 **사용 시나리오**
+- **단일 프로젝트**: 자동화된 개발 사이클
+- **다중 프로젝트**: 병렬 에이전트 작업 분배
+- **장기 프로젝트**: 수일간 지속적인 작업 자동화
+- **복잡 시스템**: 여러 단계 걸친 고도화 작업
+
 ## 스크립트
 ```bash
 # Serena 서버 실행
@@ -119,5 +216,32 @@ npm run build --workspaces && npm run test --workspaces && npm run opa-check && 
 ```
 
 ## Status
-- SDK/CLI: v0.1.0 (Ready)
-- Serena 통합: v0.1.0 (포트 분리 완료)
+- **V3.0.0.0**: ✅ 지속성 워크스페이스 완전 통합
+- **SDK/CLI**: v0.1.0 (Ready)
+- **Serena 통합**: v0.1.0 (포트 분리 완료)
+- **다중 에이전트**: ✅ 4개 전문가 에이전트 운영 중
+- **자동 복구**: ✅ 15분 간격 체크포인트 시스템
+- **실전 증명**: ✅ AI_기반_자동화_플랫폼� 프로젝트 운영
+
+## 🎯 V3 실전 운영 결과
+
+### 📊 **현재 운영 중인 프로젝트**
+- **AI_기반_자동화_플랫폼�**: 다중 에이전트 협업 시스템 구축
+- **다중_에이전트_협업_시스템**: 분산형 작업 자동화
+- **자동 체크포인트**: 실시간 상태 저장 및 복구
+
+### 🤖 **에이전트 배치 현황**
+1. **boosaan** (컨텍스트 관리자): 코드 구현 및 개발
+2. **uijeongboo** (인터페이스 관리자): 시스템 설계 및 UI/UX
+3. **oolsaan** (품질 보증): 테스트 및 검증
+4. **ilsaan** (워크플로우 관리자): 배포 준비 및 자동화
+
+## 🔗 연관 시스템
+- **MCP 오케스트레이션**: 다중 서버 통합 관리
+- **Firebase 연동**: 클라우드 로깅 및 상태 저장
+- **GitHub Actions**: 자동 빌드 및 배포 파이프라인
+- **OPA 정책**: 정책 기반 게이트 검증
+
+---
+
+**🚀 V3.0.0.0: 반복 지시 없는 완전 자동화 개발 환경**
