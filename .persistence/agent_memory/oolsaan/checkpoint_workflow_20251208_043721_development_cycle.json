@@ -1,0 +1,19 @@
+{
+  "workflow_id": "workflow_20251208_043721_development_cycle",
+  "step_id": "quality_assurance",
+  "timestamp": "2025-12-08T04:37:21.544874",
+  "context": {
+    "project_name": "AI_기반_자동화_플랫폼",
+    "target_feature": "다중_에이전트_협업_시스템",
+    "priority": "critical",
+    "requirements": [
+      "분산형 에이전트 아키텍처",
+      "실시간 상태 동기화",
+      "자동 복구 메커니즘",
+      "확장 가능한 모듈 설계"
+    ],
+    "timeline": "4주",
+    "complexity": "high"
+  },
+  "progress": 0.6
+}
