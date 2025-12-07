@@ -10,8 +10,16 @@ export interface AuthUser {
 }
 
 export class AuthService {
-  private static readonly JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+  private static readonly JWT_SECRET = this.getJWTSecret();
   private static readonly API_KEY_PREFIX = 'coree_';
+
+  private static getJWTSecret(): string {
+    const secret = process.env.JWT_SECRET;
+    if (!secret || secret.length < 32) {
+      throw new Error('JWT_SECRET environment variable must be set and at least 32 characters long');
+    }
+    return secret;
+  }
 
   static generateApiKey(): string {
     return this.API_KEY_PREFIX + randomBytes(32).toString('hex');

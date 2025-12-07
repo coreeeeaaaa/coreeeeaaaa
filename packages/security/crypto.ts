@@ -17,17 +17,21 @@ export class CryptoService {
 
     return {
       encrypted: `${encrypted}:${authTag.toString('hex')}`,
-      iv: iv.toString('hex')
+      iv: iv.toString('hex'),
+      salt: salt.toString('hex')
     };
   }
 
-  static async decrypt(encryptedData: string, password: string, ivHex: string): Promise<string> {
+  static async decrypt(encryptedData: string, password: string, ivHex: string, saltHex?: string): Promise<string> {
     const [encrypted, authTagHex] = encryptedData.split(':');
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
 
-    // Generate same salt (in production, store salt with encrypted data)
-    const salt = Buffer.from('fixed-salt-for-demo', 'utf8');
+    // Use provided salt or throw error - never use fixed salt
+    if (!saltHex) {
+      throw new Error('Salt is required for decryption');
+    }
+    const salt = Buffer.from(saltHex, 'hex');
     const key = await this.deriveKey(password, salt);
 
     const decipher = createDecipheriv(this.ALGORITHM, key, iv);
