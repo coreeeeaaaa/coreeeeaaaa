@@ -27,3 +27,8 @@ opencode.json
 # Claude Desktop personal config
 claude_desktop_config.json
 .simple/
+
+# Test files
+test-*.js
+test-*.ts
+temp/
