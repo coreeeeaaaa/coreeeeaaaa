@@ -1,0 +1,68 @@
+version: '3'
+
+tasks:
+  install:
+    desc: 'Install all project dependencies'
+    cmds:
+      - npm install
+      - cd packages/core && npm install
+      - cd packages/sdk && npm install
+      - cd packages/cli && npm install
+
+  build:
+    desc: 'Build all packages'
+    deps: [install]
+    cmds:
+      - echo "Building all packages..."
+      - npm run build
+
+  lint:
+    desc: 'Run linting checks'
+    cmds:
+      - echo "Running lint checks..."
+      - npm run lint
+
+  test:
+    desc: 'Run all tests'
+    cmds:
+      - echo "Running tests..."
+      - npm run test
+
+  opa:
+    desc: 'Run OPA policy check (stub passes by default)'
+    cmds:
+      - echo "Running OPA policy check..."
+      - npm run opa-check
+
+  security:
+    desc: 'Run security scans (trivy, gitleaks)'
+    cmds:
+      - echo "Running security scans..."
+      - 'command -v trivy >/dev/null 2>&1 || { echo "❌ trivy not installed"; exit 1; }'
+      - 'trivy fs --exit-code 1 .'
+      - 'command -v gitleaks >/dev/null 2>&1 || { echo "❌ gitleaks not installed"; exit 1; }'
+      - 'gitleaks detect --no-git --verbose'
+
+  quality:
+    desc: 'Run comprehensive quality gate (lint + test + security)'
+    deps: [build]
+    cmds:
+      - task: opa
+      - task: lint
+      - task: test
+      - task: security
+      - echo "✅ Quality gate passed"
+
+  dev:
+    desc: 'Start local development server'
+    cmds:
+      - echo "Starting development server..."
+      - npm run dev || npm start || echo "No dev/start script found in package.json"
+
+  clean:
+    desc: 'Clean build artifacts'
+    cmds:
+      - rm -rf packages/*/dist
+      - rm -rf packages/*/node_modules
+      - rm -rf node_modules
+      - echo "✅ Cleaned build artifacts"

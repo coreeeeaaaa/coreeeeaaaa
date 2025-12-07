@@ -1,0 +1,29 @@
+node_modules/
+.DS_Store
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+dist/
+artifacts/
+.env
+.env.*
+.turbo/
+.cache/
+*.tsbuildinfo
+*.log
+
+# Internal work directories
+.context/
+.core/
+
+# Build artifacts
+build_output/
+*.zip
+
+# Local config (may contain secrets)
+opencode.json
+
+# Claude Desktop personal config
+claude_desktop_config.json
+.simple/

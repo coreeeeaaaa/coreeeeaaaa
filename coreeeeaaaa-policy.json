@@ -1,0 +1,32 @@
+{
+  "policy": {
+    "name": "Standard Development Policy",
+    "version": "1.0.0",
+    "gates": {
+      "test": {
+        "required": true,
+        "description": "테스트 통과 필수",
+        "validation": "npm test"
+      },
+      "security": {
+        "required": true,
+        "description": "보안 검증",
+        "validation": "npx coreeeeaaaa gate security"
+      },
+      "performance": {
+        "required": false,
+        "description": "성능 검증",
+        "validation": "npx coreeeeaaaa gate performance"
+      }
+    },
+    "workflow": {
+      "provider": "claude-cli",
+      "maxIterations": 3,
+      "autoApprove": false
+    },
+    "hooks": {
+      "preCommit": ["npx coreeeeaaaa gate test"],
+      "prePush": ["npx coreeeeaaaa gate security"]
+    }
+  }
+}

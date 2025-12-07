@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "jonnnngro": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/Users/a/personaluse/jonnnngro-mcp-server/src/server.js"],
+      "env": {}
+    },
+    "wonjoo": {
+      "type": "stdio",
+      "command": "wonjoooo",
+      "args": [],
+      "env": {}
+    },
+    "boosaan": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/Users/a/coreeeeaaaa/mcp_servers/boosaan_mcp_server.py"],
+      "env": {}
+    },
+    "oolsaan": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/Users/a/coreeeeaaaa/mcp_servers/olsaan_mcp_server.py"],
+      "env": {}
+    },
+    "ilsaan": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/Users/a/coreeeeaaaa/mcp_servers/ilsaan_mcp_server.py"],
+      "env": {}
+    }
+  }
+}

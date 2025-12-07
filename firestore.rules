@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isDevAI() {
+      return request.auth != null && request.auth.token.dev_ai == true;
+    }
+    function isPO() {
+      return request.auth != null && request.auth.token.po == true;
+    }
+    function isWriteOnce() {
+      return request.method == 'create';
+    }
+    function noDelete() {
+      return request.method != 'delete';
+    }
+
+    // dev_logs: read/write for DevAI
+    match /dev_logs/{projectId}/{allPaths=**} { allow read, write: if isDevAI(); }
+
+    // dev_logs_versions: read/write for DevAI
+    match /dev_logs_versions/{projectId}/{allPaths=**} { allow read, write: if isDevAI(); }
+
+    // dev_logs_summaries: read/write for DevAI
+    match /dev_logs_summaries/{projectId}/{allPaths=**} { allow read, write: if isDevAI(); }
+
+    // dev_gates: write-once for DevAI, monthly sharding
+    match /dev_gates/{projectId}/{yyyymm}/{allPaths=**} { allow create: if isDevAI() && isWriteOnce(); }
+
+    // dev_lineage: write-once for DevAI
+    match /dev_lineage/{projectId}/{allPaths=**} { allow create: if isDevAI() && isWriteOnce(); }
+
+    // dev_status: read/write for DevAI, no delete on /current
+    match /dev_status/{projectId}/current { allow read, write: if isDevAI() && noDelete(); }
+    match /dev_status/{projectId}/{allPaths=**} { allow read, write: if isDevAI(); }
+
+    // dev_reports_public: read for PO only
+    match /dev_reports_public/{projectId}/{allPaths=**} { allow read: if isPO(); }
+
+    // blueprints: read/write for DevAI
+    match /blueprints/{projectId}/{allPaths=**} { allow read, write: if isDevAI(); }
+
+    // blueprints_latest: read/write for DevAI
+    match /blueprints_latest/{projectId}/{allPaths=**} { allow read, write: if isDevAI(); }
+
+    // Deny all other access
+    match /{document=**} { allow read, write: if false; }
+  }
+}

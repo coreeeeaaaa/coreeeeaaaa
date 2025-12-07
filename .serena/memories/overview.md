@@ -1,0 +1,14 @@
+# Project overview
+- Purpose: coreeeeaaaa is a universal development automation toolkit (CLI + SDK) for gates, logging, CAS pointers, and autonomous loop skeleton. Contains Firebase function for dev logs.
+- Stack: Node 18+, npm workspaces. Mix of ESM (packages) and CommonJS (core/, functions/). Firebase Admin/Functions, Commander CLI, Ajv for JSON schema. Tests use built-in node:test.
+- Structure highlights:
+  - packages/cli: commander-based `coreeeeaaaa` CLI (gate/evidence/pointer/log/autonomous step commands).
+  - packages/sdk: helpers for hashing, schema validation, log append/tail, CAS pointer, anonymization; autonomous engine reads core/uem ledger.
+  - core/uem: binary ledger/quantum/coord utilities and tests.
+  - functions: Firebase Gen2 `logAgentWorkGen2` + supporting config (firebase.json/firestore.rules).
+  - docs: process/adac/canon/logging protocol and samples.
+  - actions/gate: composite GH action to run a gate.
+  - scripts: helpers (e.g., auto-log-summary for JSONL summaries).
+  - schema, policy, templates: sample JSON schema/policies/templates for gates.
+- CI: .github/workflows/ci.yml runs npm install, npm run lint, npm run test, then CLI smoke test (npx coreeeeaaaa --help) on node 20.
+- Entry points: CLI via `npx coreeeeaaaa ...`; Firebase deploy manual steps in README; autonomous loop step via `npx coreeeeaaaa autonomous step` (writes to .core/core.uem).
