@@ -36,8 +36,14 @@ Universal development automation framework with **V0.3.0 지속성 워크스페�
 ## 🚀 Quick start
 
 ### V0.3.0 지속성 워크스페이스 시작
+
+#### 방법 1: V0.3.0 지속성 시스템 (Python 기반)
 ```bash
-# 1. V0.3.0 지속성 시스템 직접 실행
+# 먼저 레포지토리 클론
+git clone https://github.com/coreeeeaaaa/coreeeeaaaa.git
+cd coreeeeaaaa
+
+# V0.3.0 지속성 시스템 직접 실행
 python3 -c "
 import sys
 sys.path.append('.')
@@ -59,10 +65,22 @@ async def start_project():
 
 asyncio.run(start_project())
 "
+```
 
-# 2. 전통 coreeeeaaaa CLI 사용
-npm install -g @coreeeeaaaa/cli
+#### 방법 2: 로컬 CLI 설치
+```bash
+# 레포지토리 클론
+git clone https://github.com/coreeeeaaaa/coreeeeaaaa.git
+cd coreeeeaaaa
+
+# 로컬에서 CLI 설치 및 실행
+npm install -g .
 coreeeeaaaa init
+```
+
+#### 방법 3: GitHub에서 직접 설치
+```bash
+npm install -g git+https://github.com/coreeeeaaaa/coreeeeaaaa.git
 ```
 
 ### 📊 실시간 상태 확인
