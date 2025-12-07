@@ -1,0 +1,84 @@
+{
+  "workflow_templates": {
+    "development_cycle": {
+      "name": "개발 사이클",
+      "description": "요구사항 → 설계 → 구현 → 테스트 → 배포",
+      "steps": [
+        {
+          "id": "requirements_analysis",
+          "agent": "boosaan",
+          "next_step": "design_planning"
+        },
+        {
+          "id": "design_planning",
+          "agent": "uijeongboo",
+          "next_step": "implementation"
+        },
+        {
+          "id": "implementation",
+          "agent": "boosaan",
+          "next_step": "quality_assurance"
+        },
+        {
+          "id": "quality_assurance",
+          "agent": "oolsaan",
+          "next_step": "deployment_preparation"
+        },
+        {
+          "id": "deployment_preparation",
+          "agent": "ilsaan",
+          "next_step": null
+        }
+      ]
+    },
+    "feature_enhancement": {
+      "name": "기능 향상",
+      "description": "분석 → 설계 → 구현 → 검증",
+      "steps": [
+        {
+          "id": "analysis",
+          "agent": "boosaan",
+          "next_step": "enhancement_design"
+        },
+        {
+          "id": "enhancement_design",
+          "agent": "uijeongboo",
+          "next_step": "enhancement_implementation"
+        },
+        {
+          "id": "enhancement_implementation",
+          "agent": "boosaan",
+          "next_step": "enhancement_validation"
+        },
+        {
+          "id": "enhancement_validation",
+          "agent": "oolsaan",
+          "next_step": null
+        }
+      ]
+    }
+  },
+  "active_workflows": {},
+  "completed_workflows": {
+    "workflow_20251208_053051_development_cycle": {
+      "completed_at": "2025-12-07T20:31:01.199682+00:00",
+      "context": {
+        "project_name": "V0.3.0 테스트",
+        "target_feature": "자동화 엔진",
+        "priority": "high"
+      },
+      "steps_completed": [
+        "requirements_analysis",
+        "design_planning",
+        "implementation",
+        "quality_assurance",
+        "deployment_preparation"
+      ]
+    }
+  },
+  "escalation_rules": {
+    "max_step_duration": 3600,
+    "checkpoint_interval": 900,
+    "auto_recovery": true
+  }
+}

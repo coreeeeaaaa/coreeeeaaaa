@@ -1,0 +1,49 @@
+{
+  "agents": {
+    "boosaan": {
+      "id": "boosaan",
+      "role": "context_manager",
+      "status": "standby",
+      "capabilities": [
+        "context_persistence",
+        "session_isolation",
+        "priority_filtering"
+      ],
+      "current_task": null
+    },
+    "uijeongboo": {
+      "id": "uijeongboo",
+      "role": "interface_manager",
+      "status": "standby",
+      "capabilities": [
+        "ui_automation",
+        "ux_optimization",
+        "interface_design"
+      ],
+      "current_task": null
+    },
+    "oolsaan": {
+      "id": "oolsaan",
+      "role": "quality_assurance",
+      "status": "standby",
+      "capabilities": [
+        "code_validation",
+        "automated_testing",
+        "performance_analysis"
+      ],
+      "current_task": null
+    },
+    "ilsaan": {
+      "id": "ilsaan",
+      "role": "workflow_manager",
+      "status": "standby",
+      "capabilities": [
+        "task_sequencing",
+        "auto_recovery",
+        "deployment_automation"
+      ],
+      "current_task": null
+    }
+  },
+  "last_updated": "2025-12-07T20:31:01.199210+00:00"
+}
