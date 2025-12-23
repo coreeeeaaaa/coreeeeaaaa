@@ -96,7 +96,8 @@ git commit -m "feat: 초기 구현"
 3. **[templates/SPEC_TEMPLATE.md](templates/SPEC_TEMPLATE.md)** - SpecKit 템플릿
 
 **추가 문서:**
-- [docs/AI_TEAM_WORKFLOW.md](docs/AI_TEAM_WORKFLOW.md) - 워크플로우 가이드
+- [docs/AI_LOCAL_WORKFLOW.md](docs/AI_LOCAL_WORKFLOW.md) - AI 로컬 작업 가이드 ⭐ **(AI 필독)**
+- [docs/AI_TEAM_WORKFLOW.md](docs/AI_TEAM_WORKFLOW.md) - 팀 워크플로우 가이드
 - [docs/RISK_MANAGEMENT.md](docs/RISK_MANAGEMENT.md) - 리스크 관리
 - [docs/VISUALIZATION.md](docs/VISUALIZATION.md) - 시스템 다이어그램
 
