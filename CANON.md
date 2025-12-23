@@ -252,19 +252,15 @@ gate 검증 항목:
 
 ```
 coreeeeaaaa/
-├── packages/              # 프레임워크 코드
-│   ├── cli/              # CLI 도구
-│   ├── core/             # MCP 서버
-│   └── sdk/              # SDK 라이브러리
-│
 ├── templates/            # 제공용 템플릿
 │   ├── PROJECT_PROPOSAL.md
 │   └── SPEC_TEMPLATE.md
 │
 ├── docs/                 # 프레임워크 문서
-│   ├── ARCHITECTURE.md
-│   ├── API.md
-│   └── USER_GUIDE.md
+│   ├── AI_TEAM_WORKFLOW.md
+│   ├── RISK_MANAGEMENT.md
+│   ├── VISUALIZATION.md
+│   └── MAINTENANCE.md
 │
 ├── CANON.md              # 이 파일 (정본)
 ├── STRUCTURE.md          # 구조 정의
@@ -289,70 +285,6 @@ my-project/
 ├── docs/                 # 프로젝트 문서
 ├── README.md             # 프로젝트 소개
 └── package.json
-```
-
----
-
-## 🛠️ CLI 표준 (강제)
-
-### init 명령어
-
-```bash
-# 사용법
-npx coreeeeaaaa init <project-name>
-
-# 동작 (표준)
-1. project-name/ 디렉토리 생성
-2. .core-project/ 디렉토리 생성
-3. templates/를 .core-project/templates/로 복사
-4. src/, tests/ 디렉토리 생성
-5. package.json 생성
-6. README.md 생성
-
-# 금지 동작
-- 현재 디렉토리에 파일 생성 (X)
-- 기존 파일 덮어쓰기 (X)
-```
-
-### gate 명령어
-
-```bash
-# 사용법
-npx coreeeeaaaa gate
-
-# 동작 (표준)
-1. .core-project/specs/에서 *.spec.md 찾기
-2. 명계와 코드 일치성 검증
-3. 테스트 실행
-4. 커버리지 확인
-5. 보안 스캔
-6. 결과를 .core-project/state/quality-report.json에 저장
-7. 종료 코드 반환 (0: 성공, 1: 실패)
-
-# 출력 형식
-✅ Gate 검증 통과
-- 명세 일치: 100%
-- 테스트 통과: 95% (19/20)
-- 커버리지: 87%
-- 보안 스캔: 통과
-```
-
-### log 명령어
-
-```bash
-# 사용법
-npx coreeeeaaaa log --add --type <type> --text "<text>"
-
-# 동작
-1. 현재 시간 기록
-2. 타입과 텍스트 저장
-3. .core-project/checkpoints/YYYY-MM-DD/에 기록
-
-# 사용법
-npx coreeeeaaaa log --tail
-
-# 동작
-1. 최근 20개 로그 출력
 ```
 
 ---
