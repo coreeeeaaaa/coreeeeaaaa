@@ -22,7 +22,7 @@
 
 역할:
   - 표준 제공: 개발 절차, 명세 형식, 검증 기준
-  - 도구 제공: CLI, MCP Server, SDK
+  - 템플릿 제공: 기획서, SpecKit 명세
   - 가이드 제공: 워크플로우, 모벨 사례
 
 하지 않는 것:
@@ -127,7 +127,7 @@ gate 종류:
   2. SpecKit 변환 (specs/*.spec.md)
   3. 구현 (src/)
   4. 테스트 (tests/)
-  5. gate 검증 (npx coreeeeaaaa gate)
+  5. 검증 (npm test)
 ```
 
 ### 절대 금지 사항

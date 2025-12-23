@@ -1,7 +1,0 @@
-{
-  "projectId": "my-project",
-  "budget": {
-    "limit": 1000,
-    "currency": "USD"
-  }
-}

@@ -29,40 +29,23 @@ coreeeeaaaa는 **절대 하지 않습니다**:
 ```
 coreeeeaaaa/                          # 프레임워크 루트
 │
-├── packages/                          # 프레임워크 코드 (핵심)
-│   ├── cli/                           # CLI 도구
-│   ├── core/                          # MCP 서버
-│   ├── sdk/                           # 라이브러리
-│   ├── engine-rs/                     # Rust 엔진
-│   ├── orchestration/                 # 워크플로우 엔진
-│   └── security/                      # 보안 모듈
-│
 ├── templates/                         # 프로젝트 템플릿 (제공용)
 │   ├── PROJECT_PROPOSAL.md            # 기획서 템플릿
 │   └── SPEC_TEMPLATE.md               # SpecKit 템플릿
 │
 ├── docs/                              # 프레임워크 문서
-│   ├── ARCHITECTURE.md                # 아키텍처 설명
-│   ├── API.md                         # API 문서
-│   └── USER_GUIDE.md                  # 사용자 가이드
-│
-├── examples/                          # 예제 프로젝트 (참고용)
-│   ├── simple-todo/                   # 간단한 TODO 앱
-│   │   ├── .core-project/             # 이 프로젝트의 상태
-│   │   ├── src/
-│   │   └── tests/
-│   └── blog-cms/                     # 블로그 CMS
-│       ├── .core-project/             # 이 프로젝트의 상태
-│       ├── src/
-│       └── tests/
+│   ├── AI_TEAM_WORKFLOW.md            # 워크플로우 가이드
+│   ├── RISK_MANAGEMENT.md             # 리스크 관리
+│   ├── VISUALIZATION.md               # 시스템 다이어그램
+│   └── MAINTENANCE.md                 # 유지보수 가이드
 │
 ├── .github/                           # GitHub 설정
-│   └── workflows/                    # CI/CD
+│   └── workflows/                    # CI/CD (문서용)
 │
 ├── .gitignore
-├── package.json                       # monorepo 루트
-├── README.md                          # 프레임워크 소개
-└── STRUCTURE.md                       # 이 파일
+├── CANON.md                           # 프레임워크 정본
+├── STRUCTURE.md                       # 이 파일
+└── README.md                          # 프레임워크 소개
 ```
 
 ---
@@ -252,20 +235,20 @@ npx coreeeeaaaa gate
 
 ```yaml
 필수:
-  - packages/**/*                    # 프레임워크 코드
   - templates/**/*                   # 템플릿
   - docs/**/*                        # 프레임워크 문서
   - STRUCTURE.md                     # 이 파일
+  - CANON.md                         # 정본
   - README.md                        # 프레임워크 소개
-  - package.json                     # monorepo 설정
 
 옵션:
-  - examples/**/*                    # 참고용 예제
+  - examples/**/*                    # 참고용 예제 (추가 예정)
 
 금지:
   - .core-project/                   # 프로젝트 상태 (금지)
   - src/                             # 사용자 코드 (금지)
   - tests/                           # 사용자 테스트 (금지)
+  - packages/                        # 프레임워크 코드 (금지)
 ```
 
 ### 사용자 프로젝트에서 관리하는 파일

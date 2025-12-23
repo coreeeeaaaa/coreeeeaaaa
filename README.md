@@ -8,18 +8,18 @@
 
 ## 🎯 30초 요약
 
-**coreeeeaaaa**는 개발 프레임워크입니다.
+**coreeeeaaaa**는 Spec-Driven Development를 위한 **표준화 프레임워크**입니다.
 
 ```yaml
 제공:
   - 표준: 개발 절차, 명세 형식, 검증 기준
-  - 도구: CLI, MCP Server, SDK
+  - 템플릿: 기획서, SpecKit 명세
   - 가이드: 워크플로우, 모벨 사례
 
 하지 않음:
   - 코드 자동 생성 (X)
-  - 프로젝트 상태 관리 (X)
-  - 개발 대행 (X)
+  - CLI 도구 제공 (X)
+  - 프로젝트 관리 (X)
 ```
 
 **시작하기**: 아래 "빠른 시작" 참조
@@ -28,28 +28,40 @@
 
 ## 🚀 빠른 시작
 
-### 1단계: 프레임워크 설치
+### 1단계: 템플릿 다운로드
 
 ```bash
-# 전역 설치
-npm install -g @coreeeeaaaa/cli
+# 프로젝트 생성
+mkdir my-project
+cd my-project
+
+# 템플릿 다운로드
+curl -O https://raw.githubusercontent.com/coreeeeaaaa/coreeeeaaaa/main/templates/PROJECT_PROPOSAL.md
+curl -O https://raw.githubusercontent.com/coreeeeaaaa/coreeeeaaaa/main/templates/SPEC_TEMPLATE.md
 ```
 
-### 2단계: 프로젝트 생성
+### 2단계: 프로젝트 구조 생성
 
 ```bash
-coreeeeaaaa init my-project
-cd my-project
+# .core-project/ 생성
+mkdir -p .core-project/{specs,state,checkpoints}
+
+# 소스 디렉토리 생성
+mkdir src tests docs
+
+# 템플릿 이동
+mv PROJECT_PROPOSAL.md .core-project/
+mv SPEC_TEMPLATE.md .core-project/specs/
 ```
 
 ### 3단계: 명세 작성
 
 ```bash
-# SpecKit 템플릿 복사
-cp templates/SPEC_TEMPLATE.md specs/my-project.spec.md
+# 기획서 작성
+vim .core-project/PROJECT_PROPOSAL.md
 
-# 명세 작성
-vim specs/my-project.spec.md
+# SpecKit 변환
+vim .core-project/specs/my-project.spec.md
 ```
 
 ### 4단계: 구현
@@ -65,11 +77,12 @@ vim tests/index.test.js
 ### 5단계: 검증
 
 ```bash
-# gate 검증
-coreeeeaaaa gate
+# 테스트 실행
+npm test
 
-# 배포
-git push origin main
+# Git 커밋
+git add .
+git commit -m "feat: 초기 구현"
 ```
 
 ---
@@ -93,69 +106,16 @@ git push origin main
 
 ```mermaid
 graph LR
-    A[명세] --> B[구현]
-    B --> C[검증]
-    C --> D[배포]
+    A[기획서] --> B[SpecKit 명세]
+    B --> C[구현]
+    C --> D[검증]
+    D --> E[배포]
 
-    A -->|specs/*.spec.md| A1
-    C -->|coreeeeaaaa gate| C1
+    B -->|specs/*.spec.md| B1
+    D -->|npm test| D1
 ```
 
 상세: [CANON.md](CANON.md) 참조
-
----
-
-## 🛠️ CLI 도구
-
-### 설치
-
-```bash
-npm install -g @coreeeeaaaa/cli
-```
-
-### 주요 명령어
-
-```bash
-# 프로젝트 초기화
-coreeeeaaaa init <project-name>
-
-# gate 검증
-coreeeeaaaa gate
-
-# 로그 기록
-coreeeeaaaa log --add --text "작업 완료"
-
-# 로그 확인
-coreeeeaaaa log --tail
-```
-
-### MCP Server
-
-```bash
-# MCP 서버 실행
-npm run core:mcp
-
-# Health check
-curl http://127.0.0.1:24282/health
-```
-
----
-
-## 📦 패키지
-
-```yaml
-@coreeeeaaaa/cli:
-  설치: npm install -g @coreeeeaaaa/cli
-  용도: 터미널 CLI
-
-@coreeeeaaaa/core:
-  설치: Claude Desktop 설정
-  용도: AI 도구 (MCP Server)
-
-@coreeeeaaaa/sdk:
-  설치: npm install @coreeeeaaaa/sdk
-  용도: Node.js 라이브러리
-```
 
 ---
 
@@ -165,9 +125,9 @@ curl http://127.0.0.1:24282/health
 
 모든 개발은 SpecKit 명세부터 시작합니다.
 
-### 2. Gate-Based (게이트 기반)
+### 2. Gate-Based (검증 기반)
 
-모든 변경사항은 gate 검증 통과가 필수입니다.
+모든 변경사항은 테스트 통과가 필수입니다.
 
 ### 3. Project Isolation (프로젝트 격리)
 
@@ -182,8 +142,8 @@ curl http://127.0.0.1:24282/health
 ### coreeeeaaaa (프레임워크)
 
 ```yaml
-역할: 도구/표준 제공
-위치: GitHub 또는 npm
+역할: 표준/템플릿/가이드 제공
+위치: GitHub
 상태: 상태 없음 (Stateless)
 ```
 
@@ -194,6 +154,26 @@ curl http://127.0.0.1:24282/health
 위치: 사용자 로컬
 상태: .core-project/에 저장
 ```
+
+---
+
+## 📦 템플릿
+
+### PROJECT_PROPOSAL.md
+기획서 작성 템플릿
+
+- 프로젝트 개요
+- 목표 및 성공 기준
+- 핵심 기능 요건
+- 제약 사항
+
+### SPEC_TEMPLATE.md
+SpecKit 명세 작성 템플릿
+
+- FR (기능 요구사항)
+- NFR (비기능 요구사항)
+- 아키텍처 설계
+- API 명세
 
 ---
 
