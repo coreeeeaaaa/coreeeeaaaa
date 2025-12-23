@@ -1,7 +1,7 @@
 # AI 기반 개발팀 협업 워크플로우
 
 > **Spec-Driven Development for AI Teams**
-> 버전: 1.0
+> 버전: 3.0.0
 > 작성일: 2025-12-23
 > coreeeeaaaa Framework 전용
 
@@ -471,7 +471,7 @@ curl http://127.0.0.1:3435/health
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|-----------|--------|
 | 1.0 | 2025-12-23 | 최초 작성 | AI Team |
-| 1.1 | 2025-12-23 | coreeeeaaaa V0.4.0 통합 | AI Team |
+| 1.1 | 2025-12-23 | coreeeeaaaa V3.0.0 통합 | AI Team |
 
 ---
 

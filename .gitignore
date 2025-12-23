@@ -17,6 +17,10 @@ artifacts/
 .context/
 .core/
 
+# Project state directories (for projects using this framework)
+.core-project/
+.pristine/
+
 # Build artifacts
 build_output/
 *.zip
