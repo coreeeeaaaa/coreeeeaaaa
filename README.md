@@ -28,14 +28,21 @@
 
 ## 🚀 빠른 시작
 
-### 1단계: 프로젝트 생성
+### 1단계: 프레임워크 설치
 
 ```bash
-npx coreeeeaaaa init my-project
+# 전역 설치
+npm install -g @coreeeeaaaa/cli
+```
+
+### 2단계: 프로젝트 생성
+
+```bash
+coreeeeaaaa init my-project
 cd my-project
 ```
 
-### 2단계: 명세 작성
+### 3단계: 명세 작성
 
 ```bash
 # SpecKit 템플릿 복사
@@ -45,7 +52,7 @@ cp templates/SPEC_TEMPLATE.md specs/my-project.spec.md
 vim specs/my-project.spec.md
 ```
 
-### 3단계: 구현
+### 4단계: 구현
 
 ```bash
 # 코드 작성
@@ -55,11 +62,11 @@ vim src/index.js
 vim tests/index.test.js
 ```
 
-### 4단계: 검증
+### 5단계: 검증
 
 ```bash
 # gate 검증
-npx coreeeeaaaa gate
+coreeeeaaaa gate
 
 # 배포
 git push origin main
@@ -91,7 +98,7 @@ graph LR
     C --> D[배포]
 
     A -->|specs/*.spec.md| A1
-    C -->|npx coreeeeaaaa gate| C1
+    C -->|coreeeeaaaa gate| C1
 ```
 
 상세: [CANON.md](CANON.md) 참조
@@ -100,20 +107,26 @@ graph LR
 
 ## 🛠️ CLI 도구
 
+### 설치
+
+```bash
+npm install -g @coreeeeaaaa/cli
+```
+
 ### 주요 명령어
 
 ```bash
 # 프로젝트 초기화
-npx coreeeeaaaa init <project-name>
+coreeeeaaaa init <project-name>
 
 # gate 검증
-npx coreeeeaaaa gate
+coreeeeaaaa gate
 
 # 로그 기록
-npx coreeeeaaaa log --add --text "작업 완료"
+coreeeeaaaa log --add --text "작업 완료"
 
 # 로그 확인
-npx coreeeeaaaa log --tail
+coreeeeaaaa log --tail
 ```
 
 ### MCP Server
