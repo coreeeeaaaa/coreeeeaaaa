@@ -196,39 +196,6 @@ sequenceDiagram
 
 ---
 
-## 🎯 CLI 명령어 동작
-
-### init 명령어
-
-```bash
-# 현재 (문제있음)
-npx coreeeeaaaa init
-# → 현재 디렉토리에 .coreeeeaaaa/ 생성
-# → 프레임워크와 프로젝트 섞임
-
-# 수정 (명확함)
-npx coreeeeaaaa init my-project
-# → my-project/ 디렉토리 생성
-# → my-project/.core-project/ 생성
-# → my-project/templates/ 복사
-# → my-project/src/ 생성
-```
-
-### gate 명령어
-
-```bash
-# 현재 (혼란)
-npx coreeeeaaaa gate
-# → 어디서 실행하든 같은 동작
-
-# 수정 (명확)
-npx coreeeeaaaa gate
-# → 현재 프로젝트의 .core-project/state/ 읽기
-# → 프로젝트별 상태로 검증
-```
-
----
-
 ## 📊 파일 소유권 명확화
 
 ### coreeeeaaaa 레포지토리에서 관리하는 파일
