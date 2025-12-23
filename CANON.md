@@ -127,7 +127,7 @@ gate 종류:
   2. SpecKit 변환 (specs/*.spec.md)
   3. 구현 (src/)
   4. 테스트 (tests/)
-  5. 검증 (npm test)
+  5. 검증 (테스트 통과)
 ```
 
 ### 절대 금지 사항
@@ -410,7 +410,9 @@ gate 실패 시:
 
 ```yaml
 할 것:
-  - npx coreeeeaaaa init test-project
+  - 프로젝트 디렉토리 생성
+  - .core-project/ 구조 생성
+  - 템플릿 다운로드 및 적용
   - 기획서 작성
   - SpecKit 변환
   - 간단한 기능 구현

@@ -166,19 +166,17 @@ my-todo-app/                           # 사용자 프로젝트
 ```mermaid
 sequenceDiagram
     participant User as 사용자
-    participant Framework as coreeeeaaaa
+    participant Framework as coreeeeaaaa (GitHub)
     participant Project as 프로젝트
 
-    User->>Framework: npm install -g coreeeeaaaa
+    User->>Framework: 템플릿 다운로드
     User->>Project: mkdir my-app && cd my-app
-    User->>Framework: npx coreeeeaaaa init
-    Framework->>Project: .core-project/ 생성
-    Framework->>Project: templates/ 복사
+    User->>Project: .core-project/ 생성
+    User->>Project: 템플릿 적용
     User->>Project: 개발 작업
     Project->>Project: .core-project/state/ 업데이트
-    User->>Framework: npx coreeeeaaaa gate
-    Framework->>Project: .core-project/ 읽기
-    Framework->>User: 검증 결과 반환
+    User->>Project: 테스트 실행
+    Project->>User: 검증 결과 반환
 ```
 
 ### 명확한 소유권
