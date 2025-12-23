@@ -1,8 +1,8 @@
 # coreeeeaaaa
 
 > **Spec-Driven Development Framework for AI Teams**
-> **정본(CANON)**: [CANON.md](CANON.md) 필독
-> 버전: 3.0.0 (전문가급 표준화)
+> **AI 시작하기**: [docs/AI_LOCAL_WORKFLOW.md](docs/AI_LOCAL_WORKFLOW.md) ⭐ **먼저 읽으세요**
+> 버전: 3.0.0
 
 ---
 
@@ -12,169 +12,63 @@
 
 ```yaml
 제공:
-  - 표준: 개발 절차, 명세 형식, 검증 기준
+  - 표준: 개발 절차, 명세 형식
   - 템플릿: 기획서, SpecKit 명세
-  - 가이드: 워크플로우, 모벨 사례
+  - 가이드: 워크플로우
 
 하지 않음:
   - 코드 자동 생성 (X)
-  - CLI 도구 제공 (X)
+  - CLI 도구 (X)
   - 프로젝트 관리 (X)
 ```
 
-**시작하기**: 아래 "빠른 시작" 참조
-
 ---
 
-## 🚀 빠른 시작
+## 🚀 AI가 사용하는 방법
 
-### 1단계: 템플릿 다운로드
+**링크만 주면 AI가 알아서 합니다:**
 
-```bash
-# 프로젝트 생성
-mkdir my-project
-cd my-project
+1. [docs/AI_LOCAL_WORKFLOW.md](docs/AI_LOCAL_WORKFLOW.md) - **AI 작업 가이드** ⭐ (시작 here)
+2. [CANON.md](CANON.md) - 프레임워크 정본
+3. [STRUCTURE.md](STRUCTURE.md) - 구조 정의
 
-# 템플릿 다운로드
-curl -O https://raw.githubusercontent.com/coreeeeaaaa/coreeeeaaaa/main/templates/PROJECT_PROPOSAL.md
-curl -O https://raw.githubusercontent.com/coreeeeaaaa/coreeeeaaaa/main/templates/SPEC_TEMPLATE.md
+**AI에게 이렇게 말하세요:**
 ```
-
-### 2단계: 프로젝트 구조 생성
-
-```bash
-# .core-project/ 생성
-mkdir -p .core-project/{specs,state,checkpoints}
-
-# 소스 디렉토리 생성
-mkdir src tests docs
-
-# 템플릿 이동
-mv PROJECT_PROPOSAL.md .core-project/
-mv SPEC_TEMPLATE.md .core-project/specs/
-```
-
-### 3단계: 명세 작성
-
-```bash
-# 기획서 작성
-vim .core-project/PROJECT_PROPOSAL.md
-
-# SpecKit 변환
-vim .core-project/specs/my-project.spec.md
-```
-
-### 4단계: 구현
-
-```bash
-# 코드 작성
-vim src/index.js
-
-# 테스트 작성
-vim tests/index.test.js
-```
-
-### 5단계: 검증
-
-```bash
-# 테스트 실행
-npm test
-
-# Git 커밋
-git add .
-git commit -m "feat: 초기 구현"
+coreeeeaaaa Framework를 사용해서 [프로젝트] 만들어줘.
+docs/AI_LOCAL_WORKFLOW.md를 참고해서 진행해.
 ```
 
 ---
 
-## 📖 필독 문서
+## 📖 문서 읽기 순서
 
-**순서대로 읽으세요:**
+### AI를 위한 최소 순서
+1. **[docs/AI_LOCAL_WORKFLOW.md](docs/AI_LOCAL_WORKFLOW.md)** - AI 작업 가이드 (5분)
+2. **[templates/SPEC_TEMPLATE.md](templates/SPEC_TEMPLATE.md)** - SpecKit 템플릿 (5분)
 
-1. **[CANON.md](CANON.md)** - 프레임워크 정본 ⭐ **(가장 중요)**
-2. **[STRUCTURE.md](STRUCTURE.md)** - 구조 정의서
-3. **[templates/SPEC_TEMPLATE.md](templates/SPEC_TEMPLATE.md)** - SpecKit 템플릿
-
-**추가 문서:**
-- [docs/AI_LOCAL_WORKFLOW.md](docs/AI_LOCAL_WORKFLOW.md) - AI 로컬 작업 가이드 ⭐ **(AI 필독)**
-- [docs/AI_TEAM_WORKFLOW.md](docs/AI_TEAM_WORKFLOW.md) - 팀 워크플로우 가이드
-- [docs/RISK_MANAGEMENT.md](docs/RISK_MANAGEMENT.md) - 리스크 관리
-- [docs/VISUALIZATION.md](docs/VISUALIZATION.md) - 시스템 다이어그램
-
----
-
-## 🔄 표준 워크플로우
-
-```mermaid
-graph LR
-    A[기획서] --> B[SpecKit 명세]
-    B --> C[구현]
-    C --> D[검증]
-    D --> E[배포]
-
-    B -->|specs/*.spec.md| B1
-    D -->|npm test| D1
-```
-
-상세: [CANON.md](CANON.md) 참조
-
----
-
-## 🎯 핵심 원칙
-
-### 1. Spec-Driven (명세 중심)
-
-모든 개발은 SpecKit 명세부터 시작합니다.
-
-### 2. Gate-Based (검증 기반)
-
-모든 변경사항은 테스트 통과가 필수입니다.
-
-### 3. Project Isolation (프로젝트 격리)
-
-각 프로젝트는 독립적인 `.core-project/` 폴더를 가집니다.
-
-상세: [CANON.md](CANON.md) 참조
-
----
-
-## ⚠️ 중요
-
-### coreeeeaaaa (프레임워크)
-
-```yaml
-역할: 표준/템플릿/가이드 제공
-위치: GitHub
-상태: 상태 없음 (Stateless)
-```
-
-### 프로젝트 (사용자)
-
-```yaml
-역할: 실제 개발
-위치: 사용자 로컬
-상태: .core-project/에 저장
-```
+### 전체 이해를 위한 순서
+1. [CANON.md](CANON.md) - 프레임워크 정본
+2. [STRUCTURE.md](STRUCTURE.md) - 구조 정의
+3. [docs/AI_TEAM_WORKFLOW.md](docs/AI_TEAM_WORKFLOW.md) - 팀 워크플로우
+4. [docs/RISK_MANAGEMENT.md](docs/RISK_MANAGEMENT.md) - 리스크 관리
+5. [docs/VISUALIZATION.md](docs/VISUALIZATION.md) - 시스템 다이어그램
 
 ---
 
 ## 📦 템플릿
 
-### PROJECT_PROPOSAL.md
-기획서 작성 템플릿
+- [templates/PROJECT_PROPOSAL.md](templates/PROJECT_PROPOSAL.md) - 기획서 템플릿
+- [templates/SPEC_TEMPLATE.md](templates/SPEC_TEMPLATE.md) - SpecKit 템플릿
 
-- 프로젝트 개요
-- 목표 및 성공 기준
-- 핵심 기능 요건
-- 제약 사항
+---
 
-### SPEC_TEMPLATE.md
-SpecKit 명세 작성 템플릿
+## 🎯 핵심 원칙
 
-- FR (기능 요구사항)
-- NFR (비기능 요구사항)
-- 아키텍처 설계
-- API 명세
+1. **Spec-Driven**: 명세부터 시작
+2. **Gate-Based**: 검증 통과 필수
+3. **Project Isolation**: 프로젝트는 독립적
+
+상세: [CANON.md](CANON.md)
 
 ---
 
@@ -192,5 +86,3 @@ Apache License 2.0
 ---
 
 **© 2025 coreeeeaaaa Framework. All rights reserved.**
-
-**[CANON.md](CANON.md) (정본) | [STRUCTURE.md](STRUCTURE.md) (구조)**
