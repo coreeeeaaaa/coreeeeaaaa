@@ -298,6 +298,43 @@ npm run build --workspaces && npm run test --workspaces && npm run opa-check && 
 - **GitHub Actions**: 자동 빌드 및 배포 파이프라인
 - **OPA 정책**: 정책 기반 게이트 검증
 
+## 🤖 AI 팀 협업 워크플로우
+
+### 4단계 개발 프로세스
+coreeeeaaaa Framework는 **Spec-Driven Development**를 기반으로 AI 팀 협업을 체계화합니다.
+
+```
+1. 기획 (Planning)
+   └─> templates/PROJECT_PROPOSAL.md 작성
+
+2. 명세 (Spec)
+   └─> templates/SPEC_TEMPLATE.md로 변환
+
+3. 개발 (Dev)
+   └─> npx coreeeeaaaa develop
+
+4. 배포 (Deploy)
+   └─> gate 검증 후 배포
+```
+
+### 빠른 시작
+```bash
+# 1. 기획서 작성
+cp templates/PROJECT_PROPOSAL.md proposals/my-project.md
+
+# 2. SpecKit 변환
+cp templates/SPEC_TEMPLATE.md specs/my-project.spec.md
+
+# 3. 개발 시작
+npx coreeeeaaaa develop specs/my-project.spec.md
+```
+
+### 상세 가이드
+- **[AI_TEAM_WORKFLOW.md](docs/AI_TEAM_WORKFLOW.md)**: 완전한 워크플로우 가이드
+- 에이전트 역할 분담 (PO, Architect, Developer, QA, DevOps)
+- Gate 기반 품질 관리
+- 실전 사례 및 예제
+
 ---
 
-**🚀 V0.3.0: 반복 지시 없는 완전 자동화 개발 환경**
+**🚀 V0.4.0: AI 팀 협업 완전 자동화 + 반복 지시 없는 개발 환경**
